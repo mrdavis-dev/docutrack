@@ -1,0 +1,758 @@
+time="2026-05-11T20:37:23-05:00" level=warning msg="Docker Compose is configured to build using Bake, but buildkit isn't enabled"
+ Service backend  Building
+Sending build context to Docker daemon  8.237kB
+Step 1/10 : FROM python:3.12-slim
+ ---> c8e887bbf3b6
+Step 2/10 : WORKDIR /app
+ ---> Running in 88690f421441
+ ---> Removed intermediate container 88690f421441
+ ---> 28620f33f03a
+Step 3/10 : RUN apt-get update && apt-get install -y --no-install-recommends     libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+ ---> Running in 497a01107058
+Hit:1 http://deb.debian.org/debian trixie InRelease
+Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9671 kB]
+Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [5412 B]
+Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [159 kB]
+Fetched 9926 kB in 4s (2322 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-14
+  cpp-14-x86-64-linux-gnu cpp-x86-64-linux-gnu gcc-14 gcc-14-x86-64-linux-gnu
+  gcc-x86-64-linux-gnu libasan8 libatomic1 libbinutils libcc1-0 libcom-err2
+  libctf-nobfd0 libctf0 libgcc-14-dev libgomp1 libgprofng0 libgssapi-krb5-2
+  libhwasan0 libisl23 libitm1 libjansson4 libk5crypto3 libkeyutils1 libkrb5-3
+  libkrb5support0 libldap2 liblsan0 libmpc3 libmpfr6 libpq5 libquadmath0
+  libsasl2-2 libsasl2-modules-db libsframe1 libssl-dev libtsan2 libubsan1
+Suggested packages:
+  binutils-doc gprofng-gui binutils-gold cpp-doc gcc-14-locales cpp-14-doc
+  gcc-multilib make manpages-dev autoconf automake libtool flex bison gdb
+  gcc-doc gcc-14-multilib gcc-14-doc gdb-x86-64-linux-gnu krb5-doc krb5-user
+  postgresql-doc-17 libssl-doc
+Recommended packages:
+  libc6-dev | libc-dev libc6-dev libc-dev krb5-locales libldap-common
+  libsasl2-modules
+The following NEW packages will be installed:
+  binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-14
+  cpp-14-x86-64-linux-gnu cpp-x86-64-linux-gnu gcc gcc-14
+  gcc-14-x86-64-linux-gnu gcc-x86-64-linux-gnu libasan8 libatomic1 libbinutils
+  libcc1-0 libcom-err2 libctf-nobfd0 libctf0 libgcc-14-dev libgomp1
+  libgprofng0 libgssapi-krb5-2 libhwasan0 libisl23 libitm1 libjansson4
+  libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 libldap2 liblsan0
+  libmpc3 libmpfr6 libpq-dev libpq5 libquadmath0 libsasl2-2
+  libsasl2-modules-db libsframe1 libssl-dev libtsan2 libubsan1
+0 upgraded, 43 newly installed, 0 to remove and 0 not upgraded.
+Need to get 56.1 MB of archives.
+After this operation, 213 MB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian trixie/main amd64 libsframe1 amd64 2.44-3 [78.4 kB]
+Get:2 http://deb.debian.org/debian trixie/main amd64 binutils-common amd64 2.44-3 [2509 kB]
+Get:3 http://deb.debian.org/debian trixie/main amd64 libbinutils amd64 2.44-3 [534 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 libgprofng0 amd64 2.44-3 [808 kB]
+Get:5 http://deb.debian.org/debian trixie/main amd64 libctf-nobfd0 amd64 2.44-3 [156 kB]
+Get:6 http://deb.debian.org/debian trixie/main amd64 libctf0 amd64 2.44-3 [88.6 kB]
+Get:7 http://deb.debian.org/debian trixie/main amd64 libjansson4 amd64 2.14-2+b3 [39.8 kB]
+Get:8 http://deb.debian.org/debian trixie/main amd64 binutils-x86-64-linux-gnu amd64 2.44-3 [1014 kB]
+Get:9 http://deb.debian.org/debian trixie/main amd64 binutils amd64 2.44-3 [265 kB]
+Get:10 http://deb.debian.org/debian trixie/main amd64 libisl23 amd64 0.27-1 [659 kB]
+Get:11 http://deb.debian.org/debian trixie/main amd64 libmpfr6 amd64 4.2.2-1 [729 kB]
+Get:12 http://deb.debian.org/debian trixie/main amd64 libmpc3 amd64 1.3.1-1+b3 [52.2 kB]
+Get:13 http://deb.debian.org/debian trixie/main amd64 cpp-14-x86-64-linux-gnu amd64 14.2.0-19 [11.0 MB]
+Get:14 http://deb.debian.org/debian trixie/main amd64 cpp-14 amd64 14.2.0-19 [1280 B]
+Get:15 http://deb.debian.org/debian trixie/main amd64 cpp-x86-64-linux-gnu amd64 4:14.2.0-1 [4840 B]
+Get:16 http://deb.debian.org/debian trixie/main amd64 cpp amd64 4:14.2.0-1 [1568 B]
+Get:17 http://deb.debian.org/debian trixie/main amd64 libcc1-0 amd64 14.2.0-19 [42.8 kB]
+Get:18 http://deb.debian.org/debian trixie/main amd64 libgomp1 amd64 14.2.0-19 [137 kB]
+Get:19 http://deb.debian.org/debian trixie/main amd64 libitm1 amd64 14.2.0-19 [26.0 kB]
+Get:20 http://deb.debian.org/debian trixie/main amd64 libatomic1 amd64 14.2.0-19 [9308 B]
+Get:21 http://deb.debian.org/debian trixie/main amd64 libasan8 amd64 14.2.0-19 [2725 kB]
+Get:22 http://deb.debian.org/debian trixie/main amd64 liblsan0 amd64 14.2.0-19 [1204 kB]
+Get:23 http://deb.debian.org/debian trixie/main amd64 libtsan2 amd64 14.2.0-19 [2460 kB]
+Get:24 http://deb.debian.org/debian trixie/main amd64 libubsan1 amd64 14.2.0-19 [1074 kB]
+Get:25 http://deb.debian.org/debian trixie/main amd64 libhwasan0 amd64 14.2.0-19 [1488 kB]
+Get:26 http://deb.debian.org/debian trixie/main amd64 libquadmath0 amd64 14.2.0-19 [145 kB]
+Get:27 http://deb.debian.org/debian trixie/main amd64 libgcc-14-dev amd64 14.2.0-19 [2672 kB]
+Get:28 http://deb.debian.org/debian trixie/main amd64 gcc-14-x86-64-linux-gnu amd64 14.2.0-19 [21.4 MB]
+Get:29 http://deb.debian.org/debian trixie/main amd64 gcc-14 amd64 14.2.0-19 [540 kB]
+Get:30 http://deb.debian.org/debian trixie/main amd64 gcc-x86-64-linux-gnu amd64 4:14.2.0-1 [1436 B]
+Get:31 http://deb.debian.org/debian trixie/main amd64 gcc amd64 4:14.2.0-1 [5136 B]
+Get:32 http://deb.debian.org/debian trixie/main amd64 libcom-err2 amd64 1.47.2-3+b10 [25.0 kB]
+Get:33 http://deb.debian.org/debian trixie/main amd64 libkrb5support0 amd64 1.21.3-5 [33.0 kB]
+Get:34 http://deb.debian.org/debian trixie/main amd64 libk5crypto3 amd64 1.21.3-5 [81.5 kB]
+Get:35 http://deb.debian.org/debian trixie/main amd64 libkeyutils1 amd64 1.6.3-6 [9456 B]
+Get:36 http://deb.debian.org/debian trixie/main amd64 libkrb5-3 amd64 1.21.3-5 [326 kB]
+Get:37 http://deb.debian.org/debian trixie/main amd64 libgssapi-krb5-2 amd64 1.21.3-5 [138 kB]
+Get:38 http://deb.debian.org/debian trixie/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg1-9 [19.8 kB]
+Get:39 http://deb.debian.org/debian trixie/main amd64 libsasl2-2 amd64 2.1.28+dfsg1-9 [57.5 kB]
+Get:40 http://deb.debian.org/debian trixie/main amd64 libldap2 amd64 2.6.10+dfsg-1 [194 kB]
+Get:41 http://deb.debian.org/debian trixie/main amd64 libpq5 amd64 17.9-0+deb13u1 [228 kB]
+Get:42 http://deb.debian.org/debian-security trixie-security/main amd64 libssl-dev amd64 3.5.5-1~deb13u2 [2954 kB]
+Get:43 http://deb.debian.org/debian trixie/main amd64 libpq-dev amd64 17.9-0+deb13u1 [152 kB]
+[91mdebconf: unable to initialize frontend: Dialog
+debconf: (TERM is not set, so the dialog frontend is not usable.)
+debconf: falling back to frontend: Readline
+[0m[91mdebconf: unable to initialize frontend: Readline
+debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 43.)
+debconf: falling back to frontend: Teletype
+[0m[91mdebconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+[0mFetched 56.1 MB in 9s (6599 kB/s)
+Selecting previously unselected package libsframe1:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5645 files and directories currently installed.)
+Preparing to unpack .../00-libsframe1_2.44-3_amd64.deb ...
+Unpacking libsframe1:amd64 (2.44-3) ...
+Selecting previously unselected package binutils-common:amd64.
+Preparing to unpack .../01-binutils-common_2.44-3_amd64.deb ...
+Unpacking binutils-common:amd64 (2.44-3) ...
+Selecting previously unselected package libbinutils:amd64.
+Preparing to unpack .../02-libbinutils_2.44-3_amd64.deb ...
+Unpacking libbinutils:amd64 (2.44-3) ...
+Selecting previously unselected package libgprofng0:amd64.
+Preparing to unpack .../03-libgprofng0_2.44-3_amd64.deb ...
+Unpacking libgprofng0:amd64 (2.44-3) ...
+Selecting previously unselected package libctf-nobfd0:amd64.
+Preparing to unpack .../04-libctf-nobfd0_2.44-3_amd64.deb ...
+Unpacking libctf-nobfd0:amd64 (2.44-3) ...
+Selecting previously unselected package libctf0:amd64.
+Preparing to unpack .../05-libctf0_2.44-3_amd64.deb ...
+Unpacking libctf0:amd64 (2.44-3) ...
+Selecting previously unselected package libjansson4:amd64.
+Preparing to unpack .../06-libjansson4_2.14-2+b3_amd64.deb ...
+Unpacking libjansson4:amd64 (2.14-2+b3) ...
+Selecting previously unselected package binutils-x86-64-linux-gnu.
+Preparing to unpack .../07-binutils-x86-64-linux-gnu_2.44-3_amd64.deb ...
+Unpacking binutils-x86-64-linux-gnu (2.44-3) ...
+Selecting previously unselected package binutils.
+Preparing to unpack .../08-binutils_2.44-3_amd64.deb ...
+Unpacking binutils (2.44-3) ...
+Selecting previously unselected package libisl23:amd64.
+Preparing to unpack .../09-libisl23_0.27-1_amd64.deb ...
+Unpacking libisl23:amd64 (0.27-1) ...
+Selecting previously unselected package libmpfr6:amd64.
+Preparing to unpack .../10-libmpfr6_4.2.2-1_amd64.deb ...
+Unpacking libmpfr6:amd64 (4.2.2-1) ...
+Selecting previously unselected package libmpc3:amd64.
+Preparing to unpack .../11-libmpc3_1.3.1-1+b3_amd64.deb ...
+Unpacking libmpc3:amd64 (1.3.1-1+b3) ...
+Selecting previously unselected package cpp-14-x86-64-linux-gnu.
+Preparing to unpack .../12-cpp-14-x86-64-linux-gnu_14.2.0-19_amd64.deb ...
+Unpacking cpp-14-x86-64-linux-gnu (14.2.0-19) ...
+Selecting previously unselected package cpp-14.
+Preparing to unpack .../13-cpp-14_14.2.0-19_amd64.deb ...
+Unpacking cpp-14 (14.2.0-19) ...
+Selecting previously unselected package cpp-x86-64-linux-gnu.
+Preparing to unpack .../14-cpp-x86-64-linux-gnu_4%3a14.2.0-1_amd64.deb ...
+Unpacking cpp-x86-64-linux-gnu (4:14.2.0-1) ...
+Selecting previously unselected package cpp.
+Preparing to unpack .../15-cpp_4%3a14.2.0-1_amd64.deb ...
+Unpacking cpp (4:14.2.0-1) ...
+Selecting previously unselected package libcc1-0:amd64.
+Preparing to unpack .../16-libcc1-0_14.2.0-19_amd64.deb ...
+Unpacking libcc1-0:amd64 (14.2.0-19) ...
+Selecting previously unselected package libgomp1:amd64.
+Preparing to unpack .../17-libgomp1_14.2.0-19_amd64.deb ...
+Unpacking libgomp1:amd64 (14.2.0-19) ...
+Selecting previously unselected package libitm1:amd64.
+Preparing to unpack .../18-libitm1_14.2.0-19_amd64.deb ...
+Unpacking libitm1:amd64 (14.2.0-19) ...
+Selecting previously unselected package libatomic1:amd64.
+Preparing to unpack .../19-libatomic1_14.2.0-19_amd64.deb ...
+Unpacking libatomic1:amd64 (14.2.0-19) ...
+Selecting previously unselected package libasan8:amd64.
+Preparing to unpack .../20-libasan8_14.2.0-19_amd64.deb ...
+Unpacking libasan8:amd64 (14.2.0-19) ...
+Selecting previously unselected package liblsan0:amd64.
+Preparing to unpack .../21-liblsan0_14.2.0-19_amd64.deb ...
+Unpacking liblsan0:amd64 (14.2.0-19) ...
+Selecting previously unselected package libtsan2:amd64.
+Preparing to unpack .../22-libtsan2_14.2.0-19_amd64.deb ...
+Unpacking libtsan2:amd64 (14.2.0-19) ...
+Selecting previously unselected package libubsan1:amd64.
+Preparing to unpack .../23-libubsan1_14.2.0-19_amd64.deb ...
+Unpacking libubsan1:amd64 (14.2.0-19) ...
+Selecting previously unselected package libhwasan0:amd64.
+Preparing to unpack .../24-libhwasan0_14.2.0-19_amd64.deb ...
+Unpacking libhwasan0:amd64 (14.2.0-19) ...
+Selecting previously unselected package libquadmath0:amd64.
+Preparing to unpack .../25-libquadmath0_14.2.0-19_amd64.deb ...
+Unpacking libquadmath0:amd64 (14.2.0-19) ...
+Selecting previously unselected package libgcc-14-dev:amd64.
+Preparing to unpack .../26-libgcc-14-dev_14.2.0-19_amd64.deb ...
+Unpacking libgcc-14-dev:amd64 (14.2.0-19) ...
+Selecting previously unselected package gcc-14-x86-64-linux-gnu.
+Preparing to unpack .../27-gcc-14-x86-64-linux-gnu_14.2.0-19_amd64.deb ...
+Unpacking gcc-14-x86-64-linux-gnu (14.2.0-19) ...
+Selecting previously unselected package gcc-14.
+Preparing to unpack .../28-gcc-14_14.2.0-19_amd64.deb ...
+Unpacking gcc-14 (14.2.0-19) ...
+Selecting previously unselected package gcc-x86-64-linux-gnu.
+Preparing to unpack .../29-gcc-x86-64-linux-gnu_4%3a14.2.0-1_amd64.deb ...
+Unpacking gcc-x86-64-linux-gnu (4:14.2.0-1) ...
+Selecting previously unselected package gcc.
+Preparing to unpack .../30-gcc_4%3a14.2.0-1_amd64.deb ...
+Unpacking gcc (4:14.2.0-1) ...
+Selecting previously unselected package libcom-err2:amd64.
+Preparing to unpack .../31-libcom-err2_1.47.2-3+b10_amd64.deb ...
+Unpacking libcom-err2:amd64 (1.47.2-3+b10) ...
+Selecting previously unselected package libkrb5support0:amd64.
+Preparing to unpack .../32-libkrb5support0_1.21.3-5_amd64.deb ...
+Unpacking libkrb5support0:amd64 (1.21.3-5) ...
+Selecting previously unselected package libk5crypto3:amd64.
+Preparing to unpack .../33-libk5crypto3_1.21.3-5_amd64.deb ...
+Unpacking libk5crypto3:amd64 (1.21.3-5) ...
+Selecting previously unselected package libkeyutils1:amd64.
+Preparing to unpack .../34-libkeyutils1_1.6.3-6_amd64.deb ...
+Unpacking libkeyutils1:amd64 (1.6.3-6) ...
+Selecting previously unselected package libkrb5-3:amd64.
+Preparing to unpack .../35-libkrb5-3_1.21.3-5_amd64.deb ...
+Unpacking libkrb5-3:amd64 (1.21.3-5) ...
+Selecting previously unselected package libgssapi-krb5-2:amd64.
+Preparing to unpack .../36-libgssapi-krb5-2_1.21.3-5_amd64.deb ...
+Unpacking libgssapi-krb5-2:amd64 (1.21.3-5) ...
+Selecting previously unselected package libsasl2-modules-db:amd64.
+Preparing to unpack .../37-libsasl2-modules-db_2.1.28+dfsg1-9_amd64.deb ...
+Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg1-9) ...
+Selecting previously unselected package libsasl2-2:amd64.
+Preparing to unpack .../38-libsasl2-2_2.1.28+dfsg1-9_amd64.deb ...
+Unpacking libsasl2-2:amd64 (2.1.28+dfsg1-9) ...
+Selecting previously unselected package libldap2:amd64.
+Preparing to unpack .../39-libldap2_2.6.10+dfsg-1_amd64.deb ...
+Unpacking libldap2:amd64 (2.6.10+dfsg-1) ...
+Selecting previously unselected package libpq5:amd64.
+Preparing to unpack .../40-libpq5_17.9-0+deb13u1_amd64.deb ...
+Unpacking libpq5:amd64 (17.9-0+deb13u1) ...
+Selecting previously unselected package libssl-dev:amd64.
+Preparing to unpack .../41-libssl-dev_3.5.5-1~deb13u2_amd64.deb ...
+Unpacking libssl-dev:amd64 (3.5.5-1~deb13u2) ...
+Selecting previously unselected package libpq-dev.
+Preparing to unpack .../42-libpq-dev_17.9-0+deb13u1_amd64.deb ...
+Unpacking libpq-dev (17.9-0+deb13u1) ...
+Setting up libkeyutils1:amd64 (1.6.3-6) ...
+Setting up binutils-common:amd64 (2.44-3) ...
+Setting up libctf-nobfd0:amd64 (2.44-3) ...
+Setting up libcom-err2:amd64 (1.47.2-3+b10) ...
+Setting up libgomp1:amd64 (14.2.0-19) ...
+Setting up libsframe1:amd64 (2.44-3) ...
+Setting up libjansson4:amd64 (2.14-2+b3) ...
+Setting up libkrb5support0:amd64 (1.21.3-5) ...
+Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg1-9) ...
+Setting up libmpfr6:amd64 (4.2.2-1) ...
+Setting up libquadmath0:amd64 (14.2.0-19) ...
+Setting up libssl-dev:amd64 (3.5.5-1~deb13u2) ...
+Setting up libmpc3:amd64 (1.3.1-1+b3) ...
+Setting up libatomic1:amd64 (14.2.0-19) ...
+Setting up libk5crypto3:amd64 (1.21.3-5) ...
+Setting up libsasl2-2:amd64 (2.1.28+dfsg1-9) ...
+Setting up libubsan1:amd64 (14.2.0-19) ...
+Setting up libhwasan0:amd64 (14.2.0-19) ...
+Setting up libasan8:amd64 (14.2.0-19) ...
+Setting up libkrb5-3:amd64 (1.21.3-5) ...
+Setting up libtsan2:amd64 (14.2.0-19) ...
+Setting up libbinutils:amd64 (2.44-3) ...
+Setting up libisl23:amd64 (0.27-1) ...
+Setting up libcc1-0:amd64 (14.2.0-19) ...
+Setting up libldap2:amd64 (2.6.10+dfsg-1) ...
+Setting up liblsan0:amd64 (14.2.0-19) ...
+Setting up libitm1:amd64 (14.2.0-19) ...
+Setting up libctf0:amd64 (2.44-3) ...
+Setting up libgprofng0:amd64 (2.44-3) ...
+Setting up libgssapi-krb5-2:amd64 (1.21.3-5) ...
+Setting up cpp-14-x86-64-linux-gnu (14.2.0-19) ...
+Setting up cpp-14 (14.2.0-19) ...
+Setting up libgcc-14-dev:amd64 (14.2.0-19) ...
+Setting up binutils-x86-64-linux-gnu (2.44-3) ...
+Setting up cpp-x86-64-linux-gnu (4:14.2.0-1) ...
+Setting up libpq5:amd64 (17.9-0+deb13u1) ...
+Setting up libpq-dev (17.9-0+deb13u1) ...
+Setting up binutils (2.44-3) ...
+Setting up cpp (4:14.2.0-1) ...
+Setting up gcc-14-x86-64-linux-gnu (14.2.0-19) ...
+Setting up gcc-x86-64-linux-gnu (4:14.2.0-1) ...
+Setting up gcc-14 (14.2.0-19) ...
+Setting up gcc (4:14.2.0-1) ...
+Processing triggers for libc-bin (2.41-12+deb13u2) ...
+ ---> Removed intermediate container 497a01107058
+ ---> 3393da311447
+Step 4/10 : COPY requirements.txt .
+ ---> c4f01fad821c
+Step 5/10 : RUN pip install --no-cache-dir -r requirements.txt
+ ---> Running in cf1afb2c4baf
+Collecting fastapi==0.111.0 (from -r requirements.txt (line 1))
+  Downloading fastapi-0.111.0-py3-none-any.whl.metadata (25 kB)
+Collecting uvicorn==0.29.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading uvicorn-0.29.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting sqlalchemy==2.0.30 (from -r requirements.txt (line 3))
+  Downloading SQLAlchemy-2.0.30-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.6 kB)
+Collecting alembic==1.13.1 (from -r requirements.txt (line 4))
+  Downloading alembic-1.13.1-py3-none-any.whl.metadata (7.4 kB)
+Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 5))
+  Downloading psycopg2_binary-2.9.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+Collecting python-multipart==0.0.9 (from -r requirements.txt (line 6))
+  Downloading python_multipart-0.0.9-py3-none-any.whl.metadata (2.5 kB)
+Collecting python-dotenv==1.0.1 (from -r requirements.txt (line 7))
+  Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting pydantic==2.7.1 (from -r requirements.txt (line 8))
+  Downloading pydantic-2.7.1-py3-none-any.whl.metadata (107 kB)
+Collecting pydantic-settings==2.2.1 (from -r requirements.txt (line 9))
+  Downloading pydantic_settings-2.2.1-py3-none-any.whl.metadata (3.1 kB)
+Collecting sib-api-v3-sdk==7.6.0 (from -r requirements.txt (line 10))
+  Downloading sib-api-v3-sdk-7.6.0.tar.gz (265 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting apscheduler==3.10.4 (from -r requirements.txt (line 11))
+  Downloading APScheduler-3.10.4-py3-none-any.whl.metadata (5.7 kB)
+Collecting aiofiles==23.2.1 (from -r requirements.txt (line 12))
+  Downloading aiofiles-23.2.1-py3-none-any.whl.metadata (9.7 kB)
+Collecting httpx==0.27.0 (from -r requirements.txt (line 13))
+  Downloading httpx-0.27.0-py3-none-any.whl.metadata (7.2 kB)
+Collecting starlette<0.38.0,>=0.37.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading starlette-0.37.2-py3-none-any.whl.metadata (5.9 kB)
+Collecting typing-extensions>=4.8.0 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting fastapi-cli>=0.0.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading fastapi_cli-0.0.24-py3-none-any.whl.metadata (6.4 kB)
+Collecting jinja2>=2.11.2 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting ujson!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0,>=4.0.1 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading ujson-5.12.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (9.6 kB)
+Collecting orjson>=3.2.1 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading orjson-3.11.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (41 kB)
+Collecting email_validator>=2.0.0 (from fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading email_validator-2.3.0-py3-none-any.whl.metadata (26 kB)
+Collecting click>=7.0 (from uvicorn==0.29.0->uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+Collecting h11>=0.8 (from uvicorn==0.29.0->uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting greenlet!=0.4.17 (from sqlalchemy==2.0.30->-r requirements.txt (line 3))
+  Downloading greenlet-3.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.7 kB)
+Collecting Mako (from alembic==1.13.1->-r requirements.txt (line 4))
+  Downloading mako-1.3.12-py3-none-any.whl.metadata (2.9 kB)
+Collecting annotated-types>=0.4.0 (from pydantic==2.7.1->-r requirements.txt (line 8))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.18.2 (from pydantic==2.7.1->-r requirements.txt (line 8))
+  Downloading pydantic_core-2.18.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting certifi>=2017.4.17 (from sib-api-v3-sdk==7.6.0->-r requirements.txt (line 10))
+  Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting python-dateutil>=2.1 (from sib-api-v3-sdk==7.6.0->-r requirements.txt (line 10))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting six>=1.10 (from sib-api-v3-sdk==7.6.0->-r requirements.txt (line 10))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting urllib3>=1.23 (from sib-api-v3-sdk==7.6.0->-r requirements.txt (line 10))
+  Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting pytz (from apscheduler==3.10.4->-r requirements.txt (line 11))
+  Downloading pytz-2026.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting tzlocal!=3.*,>=2.0 (from apscheduler==3.10.4->-r requirements.txt (line 11))
+  Downloading tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting anyio (from httpx==0.27.0->-r requirements.txt (line 13))
+  Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+Collecting httpcore==1.* (from httpx==0.27.0->-r requirements.txt (line 13))
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting idna (from httpx==0.27.0->-r requirements.txt (line 13))
+  Downloading idna-3.14-py3-none-any.whl.metadata (8.0 kB)
+Collecting sniffio (from httpx==0.27.0->-r requirements.txt (line 13))
+  Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting httptools>=0.5.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+Collecting pyyaml>=5.1 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting uvloop!=0.15.0,!=0.15.1,>=0.14.0 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
+Collecting watchfiles>=0.13 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+Collecting websockets>=10.4 (from uvicorn[standard]==0.29.0->-r requirements.txt (line 2))
+  Downloading websockets-16.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.8 kB)
+Collecting dnspython>=2.0.0 (from email_validator>=2.0.0->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+Collecting typer>=0.16.0 (from fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading typer-0.25.1-py3-none-any.whl.metadata (15 kB)
+Collecting rich-toolkit>=0.14.8 (from fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading rich_toolkit-0.19.7-py3-none-any.whl.metadata (1.0 kB)
+Collecting MarkupSafe>=2.0 (from jinja2>=2.11.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting rich>=13.7.1 (from rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting shellingham>=1.3.0 (from typer>=0.16.0->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting annotated-doc>=0.0.2 (from typer>=0.16.0->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.2->fastapi==0.111.0->-r requirements.txt (line 1))
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading fastapi-0.111.0-py3-none-any.whl (91 kB)
+Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
+Downloading SQLAlchemy-2.0.30-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 9.4 MB/s eta 0:00:00
+Downloading alembic-1.13.1-py3-none-any.whl (233 kB)
+Downloading psycopg2_binary-2.9.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 10.9 MB/s eta 0:00:00
+Downloading python_multipart-0.0.9-py3-none-any.whl (22 kB)
+Downloading python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Downloading pydantic-2.7.1-py3-none-any.whl (409 kB)
+Downloading pydantic_settings-2.2.1-py3-none-any.whl (13 kB)
+Downloading APScheduler-3.10.4-py3-none-any.whl (59 kB)
+Downloading aiofiles-23.2.1-py3-none-any.whl (15 kB)
+Downloading httpx-0.27.0-py3-none-any.whl (75 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading pydantic_core-2.18.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 9.6 MB/s eta 0:00:00
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
+Downloading click-8.3.3-py3-none-any.whl (110 kB)
+Downloading email_validator-2.3.0-py3-none-any.whl (35 kB)
+Downloading fastapi_cli-0.0.24-py3-none-any.whl (12 kB)
+Downloading greenlet-3.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (611 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 611.4/611.4 kB 8.2 MB/s eta 0:00:00
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (517 kB)
+Downloading idna-3.14-py3-none-any.whl (72 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading orjson-3.11.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (134 kB)
+Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 11.3 MB/s eta 0:00:00
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading starlette-0.37.2-py3-none-any.whl (71 kB)
+Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
+Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Downloading tzlocal-5.3.1-py3-none-any.whl (18 kB)
+Downloading ujson-5.12.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (59 kB)
+Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+Downloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 8.6 MB/s eta 0:00:00
+Downloading watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+Downloading websockets-16.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (184 kB)
+Downloading mako-1.3.12-py3-none-any.whl (78 kB)
+Downloading pytz-2026.2-py2.py3-none-any.whl (510 kB)
+Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+Downloading dnspython-2.8.0-py3-none-any.whl (331 kB)
+Downloading markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading rich_toolkit-0.19.7-py3-none-any.whl (32 kB)
+Downloading typer-0.25.1-py3-none-any.whl (58 kB)
+Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 11.4 MB/s eta 0:00:00
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Building wheels for collected packages: sib-api-v3-sdk
+  Building wheel for sib-api-v3-sdk (pyproject.toml): started
+  Building wheel for sib-api-v3-sdk (pyproject.toml): finished with status 'done'
+  Created wheel for sib-api-v3-sdk: filename=sib_api_v3_sdk-7.6.0-py3-none-any.whl size=1030135 sha256=b89cc55d56c00e6313ba6cdbb584be930c79dce07407509dbe7007800059a971
+  Stored in directory: /tmp/pip-ephem-wheel-cache-k44ikvnd/wheels/33/51/fe/62de084a0263efbf1cd15465b7592f13ee41519406fe3bdc4d
+Successfully built sib-api-v3-sdk
+Installing collected packages: pytz, websockets, uvloop, urllib3, ujson, tzlocal, typing-extensions, sniffio, six, shellingham, pyyaml, python-multipart, python-dotenv, pygments, psycopg2-binary, orjson, mdurl, MarkupSafe, idna, httptools, h11, greenlet, dnspython, click, certifi, annotated-types, annotated-doc, aiofiles, uvicorn, sqlalchemy, python-dateutil, pydantic-core, markdown-it-py, Mako, jinja2, httpcore, email_validator, apscheduler, anyio, watchfiles, starlette, sib-api-v3-sdk, rich, pydantic, httpx, alembic, typer, rich-toolkit, pydantic-settings, fastapi-cli, fastapi
+Successfully installed Mako-1.3.12 MarkupSafe-3.0.3 aiofiles-23.2.1 alembic-1.13.1 annotated-doc-0.0.4 annotated-types-0.7.0 anyio-4.13.0 apscheduler-3.10.4 certifi-2026.4.22 click-8.3.3 dnspython-2.8.0 email_validator-2.3.0 fastapi-0.111.0 fastapi-cli-0.0.24 greenlet-3.5.0 h11-0.16.0 httpcore-1.0.9 httptools-0.7.1 httpx-0.27.0 idna-3.14 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 orjson-3.11.9 psycopg2-binary-2.9.9 pydantic-2.7.1 pydantic-core-2.18.2 pydantic-settings-2.2.1 pygments-2.20.0 python-dateutil-2.9.0.post0 python-dotenv-1.0.1 python-multipart-0.0.9 pytz-2026.2 pyyaml-6.0.3 rich-15.0.0 rich-toolkit-0.19.7 shellingham-1.5.4 sib-api-v3-sdk-7.6.0 six-1.17.0 sniffio-1.3.1 sqlalchemy-2.0.30 starlette-0.37.2 typer-0.25.1 typing-extensions-4.15.0 tzlocal-5.3.1 ujson-5.12.1 urllib3-2.7.0 uvicorn-0.29.0 uvloop-0.22.1 watchfiles-1.1.1 websockets-16.0
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0m[91m
+[notice] A new release of pip is available: 25.0.1 -> 26.1.1
+[notice] To update, run: pip install --upgrade pip
+[0m ---> Removed intermediate container cf1afb2c4baf
+ ---> 7187d0676803
+Step 6/10 : COPY . .
+ ---> 7e9be7000b7c
+Step 7/10 : RUN mkdir -p /app/uploads
+ ---> Running in 5f9f7d113ef3
+ ---> Removed intermediate container 5f9f7d113ef3
+ ---> 0b07eb720375
+Step 8/10 : EXPOSE 8000
+ ---> Running in 28bb0eb255fa
+ ---> Removed intermediate container 28bb0eb255fa
+ ---> 2f46d34ea7a5
+Step 9/10 : CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+ ---> Running in 16c3bb8d6a1a
+ ---> Removed intermediate container 16c3bb8d6a1a
+ ---> 7367e583d95b
+Step 10/10 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 154eca961cdc
+ ---> Removed intermediate container 154eca961cdc
+ ---> 0ec7c148abe1
+Successfully built 0ec7c148abe1
+Successfully tagged docucars-backend:latest
+ Service backend  Built
+ Service frontend  Building
+Sending build context to Docker daemon  9.593kB
+Step 1/12 : FROM node:20-alpine AS build
+20-alpine: Pulling from library/node
+
+[1A[2K6a0ac1617861: Already exists [1B
+[1A[2K4feea04c1543: Already exists [1B
+[1A[2Kb2cbbfe903b0: Already exists [1B
+[1A[2Kfff4e2c1b189: Already exists [1BDigest: sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+Status: Downloaded newer image for node:20-alpine
+ ---> 11cedc39e663
+Step 2/12 : WORKDIR /app
+ ---> Running in f7649bfc3f9c
+ ---> Removed intermediate container f7649bfc3f9c
+ ---> 00fd4035c0e9
+Step 3/12 : COPY package.json package-lock.json* ./
+ ---> c9b16c5bd0d5
+Step 4/12 : RUN npm install --frozen-lockfile 2>/dev/null || npm install
+ ---> Running in 1f7155c1d6bb
+
+added 156 packages, and audited 157 packages in 29s
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+ ---> Removed intermediate container 1f7155c1d6bb
+ ---> 252b4c1d268a
+Step 5/12 : COPY . .
+ ---> d2cd8fe3f4d4
+Step 6/12 : RUN npm run build
+ ---> Running in 93a74638452e
+
+> docucars-frontend@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 92 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.52 kB │ gzip:  0.33 kB
+dist/assets/index-Dp_0hj4w.css   16.41 kB │ gzip:  3.68 kB
+dist/assets/index-DoKegO6W.js   227.57 kB │ gzip: 74.95 kB
+✓ built in 3.37s
+ ---> Removed intermediate container 93a74638452e
+ ---> eb2a1ce69927
+Step 7/12 : FROM nginx:alpine
+ ---> 812d47f806db
+Step 8/12 : COPY --from=build /app/dist /usr/share/nginx/html
+ ---> 49e81ef4f304
+Step 9/12 : COPY nginx.conf /etc/nginx/conf.d/default.conf
+ ---> 8caa8201bba0
+Step 10/12 : EXPOSE 80
+ ---> Running in 71337608ac17
+ ---> Removed intermediate container 71337608ac17
+ ---> 031a6a65a62a
+Step 11/12 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Running in 62e25c06865d
+ ---> Removed intermediate container 62e25c06865d
+ ---> 323c8b9440d4
+Step 12/12 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 7ca2cf615222
+ ---> Removed intermediate container 7ca2cf615222
+ ---> 30b23b1da859
+Successfully built 30b23b1da859
+Successfully tagged docucars-frontend:latest
+ Service frontend  Built
+ backend  Built
+ frontend  Built
+ Network docucars_default  Creating
+ Network docucars_default  Created
+ Volume docucars_postgres_data  Creating
+ Volume docucars_postgres_data  Created
+ Volume docucars_uploads_data  Creating
+ Volume docucars_uploads_data  Created
+ Container docucars-db-1  Creating
+ Container docucars-db-1  Created
+ Container docucars-backend-1  Creating
+ Container docucars-backend-1  Created
+ Container docucars-frontend-1  Creating
+ Container docucars-frontend-1  Created
+Attaching to backend-1, db-1, frontend-1
+db-1  | The files belonging to this database system will be owned by user "postgres".
+db-1  | This user must also own the server process.
+db-1  | 
+db-1  | The database cluster will be initialized with locale "en_US.utf8".
+db-1  | The default database encoding has accordingly been set to "UTF8".
+db-1  | The default text search configuration will be set to "english".
+db-1  | 
+db-1  | Data page checksums are disabled.
+db-1  | 
+db-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+db-1  | creating subdirectories ... ok
+db-1  | selecting dynamic shared memory implementation ... posix
+db-1  | selecting default max_connections ... 100
+db-1  | selecting default shared_buffers ... 128MB
+db-1  | selecting default time zone ... UTC
+db-1  | creating configuration files ... ok
+db-1  | running bootstrap script ... ok
+db-1  | sh: locale: not found
+db-1  | 2026-05-12 01:40:09.275 UTC [35] WARNING:  no usable system locales were found
+db-1  | performing post-bootstrap initialization ... ok
+db-1  | initdb: warning: enabling "trust" authentication for local connections
+db-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+db-1  | syncing data to disk ... ok
+db-1  | 
+db-1  | 
+db-1  | Success. You can now start the database server using:
+db-1  | 
+db-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+db-1  | 
+db-1  | waiting for server to start....2026-05-12 01:40:11.983 UTC [41] LOG:  starting PostgreSQL 16.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+db-1  | 2026-05-12 01:40:11.990 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-05-12 01:40:12.011 UTC [44] LOG:  database system was shut down at 2026-05-12 01:40:11 UTC
+db-1  | 2026-05-12 01:40:12.028 UTC [41] LOG:  database system is ready to accept connections
+db-1  |  done
+db-1  | server started
+db-1  | CREATE DATABASE
+db-1  | 
+db-1  | 
+db-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+db-1  | 
+db-1  | waiting for server to shut down...2026-05-12 01:40:12.267 UTC [41] LOG:  received fast shutdown request
+db-1  | .2026-05-12 01:40:12.273 UTC [41] LOG:  aborting any active transactions
+db-1  | 2026-05-12 01:40:12.280 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+db-1  | 2026-05-12 01:40:12.281 UTC [42] LOG:  shutting down
+db-1  | 2026-05-12 01:40:12.287 UTC [42] LOG:  checkpoint starting: shutdown immediate
+db-1  | 2026-05-12 01:40:12.504 UTC [42] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.039 s, sync=0.162 s, total=0.224 s; sync files=301, longest=0.006 s, average=0.001 s; distance=4272 kB, estimate=4272 kB; lsn=0/191E938, redo lsn=0/191E938
+db-1  | 2026-05-12 01:40:12.516 UTC [41] LOG:  database system is shut down
+db-1  |  done
+db-1  | server stopped
+db-1  | 
+db-1  | PostgreSQL init process complete; ready for start up.
+db-1  | 
+db-1  | 2026-05-12 01:40:12.641 UTC [1] LOG:  starting PostgreSQL 16.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+db-1  | 2026-05-12 01:40:12.642 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db-1  | 2026-05-12 01:40:12.642 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+db-1  | 2026-05-12 01:40:12.655 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-05-12 01:40:12.671 UTC [63] LOG:  database system was shut down at 2026-05-12 01:40:12 UTC
+db-1  | 2026-05-12 01:40:12.686 UTC [1] LOG:  database system is ready to accept connections
+frontend-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+frontend-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+frontend-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+frontend-1  | 10-listen-on-ipv6-by-default.sh: info: /etc/nginx/conf.d/default.conf differs from the packaged version
+frontend-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+frontend-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: using the "epoll" event method
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: nginx/1.29.8
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: OS: Linux 5.15.167.4-microsoft-standard-WSL2
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker processes
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 29
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 30
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 31
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 32
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 33
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 34
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 35
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 36
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 37
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 38
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 39
+frontend-1  | 2026/05/12 01:40:14 [notice] 1#1: start worker process 40
+backend-1   | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+backend-1   | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+backend-1   | INFO  [alembic.runtime.migration] Running upgrade  -> 0001, initial schema
+backend-1   | INFO:     Started server process [8]
+backend-1   | INFO:     Waiting for application startup.
+backend-1   | 2026-05-12 01:40:17,386 INFO apscheduler.scheduler — Adding job tentatively -- it will be properly scheduled when the scheduler starts
+backend-1   | 2026-05-12 01:40:17,387 INFO apscheduler.scheduler — Added job "check_sla" to job store "default"
+backend-1   | 2026-05-12 01:40:17,387 INFO apscheduler.scheduler — Scheduler started
+backend-1   | 2026-05-12 01:40:17,388 INFO main — SLA scheduler started — interval 300s
+backend-1   | INFO:     Application startup complete.
+backend-1   | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:40:19 +0000] "GET / HTTP/1.1" 200 525 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:40:19 +0000] "GET /assets/index-DoKegO6W.js HTTP/1.1" 200 227617 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:40:19 +0000] "GET /assets/index-Dp_0hj4w.css HTTP/1.1" 200 16413 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:40:20 +0000] "GET /favicon.ico HTTP/1.1" 200 525 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:41:34 +0000] "GET /admin HTTP/1.1" 200 525 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:41:34 +0000] "GET /assets/index-DoKegO6W.js HTTP/1.1" 304 0 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:41:34 +0000] "GET /assets/index-Dp_0hj4w.css HTTP/1.1" 304 0 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:41:34 +0000] "GET /favicon.ico HTTP/1.1" 304 0 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:44202 - "GET /cases HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:41 +0000] "GET /api/cases HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:44216 - "GET /cases HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:41 +0000] "GET /api/cases HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:44226 - "GET /cases?status=NUEVO HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:46 +0000] "GET /api/cases?status=NUEVO HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:44232 - "GET /cases?status=PENDIENTE_REVISION HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:47 +0000] "GET /api/cases?status=PENDIENTE_REVISION HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:44248 - "GET /cases HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:47 +0000] "GET /api/cases HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+backend-1   | INFO:     172.29.0.4:35862 - "GET /cases HTTP/1.1" 200 OK
+frontend-1  | 172.29.0.1 - admin [12/May/2026:01:41:49 +0000] "GET /api/cases HTTP/1.1" 200 2 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+db-1        | 2026-05-12 01:45:12.716 UTC [61] LOG:  checkpoint starting: time
+backend-1   | 2026-05-12 01:45:17,392 INFO apscheduler.executors.default — Running job "check_sla (trigger: interval[0:05:00], next run at: 2026-05-12 01:45:17 UTC)" (scheduled at 2026-05-12 01:45:17.386338+00:00)
+backend-1   | 2026-05-12 01:45:17,403 INFO apscheduler.executors.default — Job "check_sla (trigger: interval[0:05:00], next run at: 2026-05-12 01:50:17 UTC)" executed successfully
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:45:22 +0000] "GET / HTTP/1.1" 304 0 "http://localhost:3000/admin" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:45:22 +0000] "GET /assets/index-DoKegO6W.js HTTP/1.1" 304 0 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:45:22 +0000] "GET /assets/index-Dp_0hj4w.css HTTP/1.1" 304 0 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.29.0.1 - - [12/May/2026:01:45:22 +0000] "GET /favicon.ico HTTP/1.1" 304 0 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36" "-"
+db-1        | 2026-05-12 01:45:24.634 UTC [61] LOG:  checkpoint complete: wrote 117 buffers (0.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=11.813 s, sync=0.058 s, total=11.918 s; sync files=67, longest=0.008 s, average=0.001 s; distance=436 kB, estimate=436 kB; lsn=0/198B978, redo lsn=0/198B940
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 29#29: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 31#31: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 33#33: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 34#34: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 30#30: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 36#36: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 29#29: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 34#34: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 36#36: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 33#33: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 38#38: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 38#38: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 39#39: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 40#40: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 30#30: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 39#39: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 31#31: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 40#40: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 34#34: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 35#35: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 31#31: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 33#33: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 37#37: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 35#35: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 37#37: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 32#32: gracefully shutting down
+frontend-1  | 2026/05/12 01:47:38 [notice] 39#39: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 40#40: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 30#30: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 32#32: exiting
+frontend-1  | 2026/05/12 01:47:38 [notice] 37#37: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 32#32: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 36#36: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 35#35: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 29#29: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 38#38: exit
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: signal 17 (SIGCHLD) received from 39
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 31 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 38 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 39 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 40 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: signal 29 (SIGIO) received
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: signal 17 (SIGCHLD) received from 36
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 29 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 30 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 32 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 33 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 34 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 35 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 36 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: worker process 37 exited with code 0
+frontend-1  | 2026/05/12 01:47:38 [notice] 1#1: exit
+[Kfrontend-1 exited with code 0
+[Kbackend-1 exited with code 137
+db-1        | 2026-05-12 01:47:41.246 UTC [1] LOG:  received fast shutdown request
+db-1        | 2026-05-12 01:47:41.251 UTC [1] LOG:  aborting any active transactions
+db-1        | 2026-05-12 01:47:41.260 UTC [1] LOG:  background worker "logical replication launcher" (PID 66) exited with exit code 1
+db-1        | 2026-05-12 01:47:41.263 UTC [61] LOG:  shutting down
+db-1        | 2026-05-12 01:47:41.267 UTC [61] LOG:  checkpoint starting: shutdown immediate
+db-1        | 2026-05-12 01:47:41.290 UTC [61] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.027 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=392 kB; lsn=0/198BA28, redo lsn=0/198BA28
+db-1        | 2026-05-12 01:47:41.305 UTC [1] LOG:  database system is shut down
+[Kdb-1 exited with code 0
