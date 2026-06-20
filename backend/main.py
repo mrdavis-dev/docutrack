@@ -21,7 +21,6 @@ scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
     scheduler.add_job(check_sla, "interval", seconds=settings.SLA_CHECK_INTERVAL, id="sla_check")
     scheduler.start()
     logger.info("SLA scheduler started — interval %ds", settings.SLA_CHECK_INTERVAL)

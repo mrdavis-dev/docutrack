@@ -6,18 +6,14 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 
-def _get_api():
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key["api-key"] = settings.BREVO_API_KEY
-    return sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-
 def send_email(to_email: str, to_name: str, subject: str, html_content: str) -> bool:
     if not settings.BREVO_API_KEY:
         logger.warning("BREVO_API_KEY not set — skipping email to %s", to_email)
         return False
     try:
-        api = _get_api()
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key["api-key"] = settings.BREVO_API_KEY
+        api = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{"email": to_email, "name": to_name}],
             sender={"email": settings.SMTP_FROM, "name": settings.SMTP_FROM_NAME},

@@ -1,5 +1,4 @@
 import logging
-import mimetypes
 from pathlib import Path
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
@@ -69,9 +68,4 @@ def download_file(
     path = Path(doc.file_path)
     if not path.exists():
         raise HTTPException(status_code=404, detail="File not found on disk")
-    media_type, _ = mimetypes.guess_type(str(path))
-    return FileResponse(
-        path=str(path),
-        media_type=media_type or "application/octet-stream",
-        filename=doc.file_name,
-    )
+    return FileResponse(path=str(path), filename=doc.file_name)
