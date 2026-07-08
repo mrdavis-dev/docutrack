@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DocuCars — Sistema de Gestión de Trámites Vehiculares
 
 MVP para gestión de solicitudes de trámites vehiculares con portal cliente y dashboard administrativo.

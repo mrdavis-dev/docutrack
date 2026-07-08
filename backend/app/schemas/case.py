@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, field_validator
-from app.models.case import CaseStatus, ServiceType
+from app.models.case import CaseStatus
 
 
 class DocumentOut(BaseModel):
@@ -20,7 +20,7 @@ class CaseCreate(BaseModel):
     phone: str
     email: EmailStr
     plate: str
-    service_type: ServiceType
+    service_type: str  # slug del trámite
     comments: Optional[str] = None
 
     @field_validator("customer_name", "phone", "plate")
@@ -34,6 +34,13 @@ class CaseCreate(BaseModel):
     @classmethod
     def normalize_plate(cls, v: str) -> str:
         return v.upper().strip()
+
+    @field_validator("service_type")
+    @classmethod
+    def service_type_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("service_type requerido")
+        return v.strip()
 
 
 class CaseStatusUpdate(BaseModel):
@@ -49,7 +56,7 @@ class CaseOut(BaseModel):
     phone: str
     email: str
     plate: str
-    service_type: ServiceType
+    service_type: str
     status: CaseStatus
     comments: Optional[str]
     internal_notes: Optional[str]
@@ -68,7 +75,7 @@ class CaseList(BaseModel):
     phone: str
     email: str
     plate: str
-    service_type: ServiceType
+    service_type: str
     status: CaseStatus
     alert_sent: bool
     last_status_update: datetime

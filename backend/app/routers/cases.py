@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.case import Case, Document, CaseStatus
+from app.models.service import ServiceType
 from app.schemas.case import CaseCreate, CaseOut, CaseList, CaseStatusUpdate
 from app.services.email import send_new_case_business, send_confirmation_client
 from app.utils.auth import require_admin
@@ -15,14 +16,16 @@ router = APIRouter(prefix="/cases", tags=["cases"])
 
 @router.post("", response_model=CaseOut, status_code=201)
 def create_case(payload: CaseCreate, db: Session = Depends(get_db)):
+    if not db.query(ServiceType).filter(ServiceType.slug == payload.service_type, ServiceType.is_active == True).first():
+        raise HTTPException(status_code=400, detail="Tipo de trámite inválido")
     case = Case(**payload.model_dump())
     db.add(case)
     db.commit()
     db.refresh(case)
     logger.info("Case #%d created — %s %s", case.id, case.plate, case.service_type)
     try:
-        send_new_case_business(case.id, case.customer_name, case.plate, case.service_type.value)
-        send_confirmation_client(case.id, case.customer_name, case.email, case.service_type.value)
+        send_new_case_business(case.id, case.customer_name, case.plate, case.service_type)
+        send_confirmation_client(case.id, case.customer_name, case.email, case.service_type)
     except Exception as e:
         logger.error("Email error on case creation: %s", e)
     return case

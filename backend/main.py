@@ -5,8 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.database import engine
 from app.models.case import Case, Document  # noqa: F401 — ensure models registered
+from app.models.service import ServiceType, ServiceField  # noqa: F401
 from app.database import Base
 from app.routers import cases, files
+from app.routers import services
 from app.tasks.sla import check_sla
 from app.config import settings
 
@@ -46,6 +48,7 @@ app.add_middleware(
 
 app.include_router(cases.router)
 app.include_router(files.router)
+app.include_router(services.router)
 
 
 @app.get("/health")

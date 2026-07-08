@@ -40,3 +40,15 @@ export const updateCaseStatus = (id, data) => api.patch(`/cases/${id}/status`, d
 export const uploadFiles = (formData) =>
   api.post("/upload", formData, { headers: { "Content-Type": "multipart/form-data" } });
 export const getFileUrl = (documentId) => `${BASE_URL}/files/${documentId}`;
+
+// Service Types (public read, admin write)
+export const listServiceTypes = (includeInactive = false) =>
+  api.get("/service-types", { params: includeInactive ? { include_inactive: true } : {} });
+export const createServiceType = (data) => api.post("/service-types", data);
+export const updateServiceType = (id, data) => api.patch(`/service-types/${id}`, data);
+export const deleteServiceType = (id) => api.delete(`/service-types/${id}`);
+
+export const listServiceFields = (stId) => api.get(`/service-types/${stId}/fields`);
+export const createServiceField = (stId, data) => api.post(`/service-types/${stId}/fields`, data);
+export const updateServiceField = (fieldId, data) => api.patch(`/service-fields/${fieldId}`, data);
+export const deleteServiceField = (fieldId) => api.delete(`/service-fields/${fieldId}`);

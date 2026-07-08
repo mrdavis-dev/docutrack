@@ -1,13 +1,6 @@
-import { useState } from "react";
-import { createCase, uploadFiles } from "../services/api";
-import FileUpload, { DOCUMENT_TYPES } from "../components/FileUpload";
-
-const SERVICE_TYPES = [
-  { value: "RENOVACION_PLACA", label: "Renovación de placa" },
-  { value: "TRASPASO", label: "Traspaso" },
-  { value: "REVISADO", label: "Revisado" },
-  { value: "DUPLICADO", label: "Duplicado" },
-];
+import { useState, useEffect } from "react";
+import { createCase, uploadFiles, listServiceTypes } from "../services/api";
+import FileUpload from "../components/FileUpload";
 
 const INITIAL_FORM = {
   customer_name: "",
@@ -33,10 +26,12 @@ function validateStep1(form) {
   return errs;
 }
 
-function validateDocs(files) {
+function validateDocs(files, textValues, fields) {
   const errs = {};
-  DOCUMENT_TYPES.forEach(({ key }) => {
-    if (!files[key]) errs[key] = "Requerido";
+  fields.forEach(({ field_key, field_type, is_required }) => {
+    if (!is_required) return;
+    if (field_type === "file" && !files[field_key]) errs[field_key] = "Requerido";
+    if (field_type === "text" && !textValues?.[field_key]?.trim()) errs[field_key] = "Requerido";
   });
   return errs;
 }
@@ -64,10 +59,8 @@ function Stepper({ current }) {
         return (
           <div key={label} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center gap-1">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200
-                  ${done ? "bg-emerald-500 text-white" : active ? "bg-brand-600 text-white ring-4 ring-brand-100" : "bg-gray-100 text-gray-400"}`}
-              >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200
+                ${done ? "bg-emerald-500 text-white" : active ? "bg-brand-600 text-white ring-4 ring-brand-100" : "bg-gray-100 text-gray-400"}`}>
                 {done ? (
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -91,19 +84,26 @@ function Stepper({ current }) {
 export default function ClientPortal() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [files, setFiles] = useState({});
+  const [textValues, setTextValues] = useState({});
   const [errors, setErrors] = useState({});
   const [fileErrors, setFileErrors] = useState({});
-  const [step, setStep] = useState(1); // 1 | 2 | "success"
+  const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [caseId, setCaseId] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [serviceTypes, setServiceTypes] = useState([]);
+
+  useEffect(() => {
+    listServiceTypes().then(({ data }) => setServiceTypes(data)).catch(() => {});
+  }, []);
+
+  const selectedService = serviceTypes.find((s) => s.slug === form.service_type);
+  const activeFields = selectedService?.fields || [];
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: name === "plate" ? value.toUpperCase() : value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: name === "plate" ? value.toUpperCase() : value }));
+    if (name === "service_type") { setFiles({}); setTextValues({}); setFileErrors({}); }
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   }
 
@@ -125,7 +125,7 @@ export default function ClientPortal() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (submitting) return;
-    const fErrs = validateDocs(files);
+    const fErrs = validateDocs(files, textValues, activeFields);
     setFileErrors(fErrs);
     if (Object.keys(fErrs).length) return;
 
@@ -134,18 +134,22 @@ export default function ClientPortal() {
       const { data: newCase } = await createCase(form);
       const fd = new FormData();
       fd.append("case_id", newCase.id);
-      DOCUMENT_TYPES.forEach(({ key }) => {
-        fd.append("files", files[key]);
-        fd.append("document_types", key);
+      activeFields.filter((f) => f.field_type === "file").forEach(({ field_key }) => {
+        fd.append("files", files[field_key]);
+        fd.append("document_types", field_key);
+      });
+      // Text fields stored as pseudo-documents (file = text blob)
+      activeFields.filter((f) => f.field_type === "text").forEach(({ field_key }) => {
+        const blob = new Blob([textValues[field_key] || ""], { type: "text/plain" });
+        fd.append("files", blob, `${field_key}.txt`);
+        fd.append("document_types", field_key);
       });
       await uploadFiles(fd);
       setCaseId(newCase.id);
       setStep("success");
     } catch (err) {
       const detail = err?.response?.data?.detail;
-      setErrors({
-        _global: typeof detail === "string" ? detail : "Error al enviar. Intenta nuevamente.",
-      });
+      setErrors({ _global: typeof detail === "string" ? detail : "Error al enviar. Intenta nuevamente." });
     } finally {
       setSubmitting(false);
     }
@@ -154,6 +158,7 @@ export default function ClientPortal() {
   function reset() {
     setForm(INITIAL_FORM);
     setFiles({});
+    setTextValues({});
     setErrors({});
     setFileErrors({});
     setStep(1);
@@ -178,19 +183,12 @@ export default function ClientPortal() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Solicitud enviada!</h2>
-          <p className="text-gray-500 text-sm mb-6">
-            Tu trámite fue registrado. Te contactaremos al correo ingresado.
-          </p>
-
+          <p className="text-gray-500 text-sm mb-6">Tu trámite fue registrado. Te contactaremos al correo ingresado.</p>
           <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
             <p className="text-xs text-brand-600 font-medium mb-1 uppercase tracking-wide">Número de caso</p>
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl font-bold text-brand-700">#{caseId}</span>
-              <button
-                onClick={copyId}
-                className="btn-ghost text-brand-600 hover:bg-brand-100"
-                title="Copiar número"
-              >
+              <button onClick={copyId} className="btn-ghost text-brand-600 hover:bg-brand-100" title="Copiar número">
                 {copied ? (
                   <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -204,11 +202,8 @@ export default function ClientPortal() {
               </button>
             </div>
           </div>
-
           <p className="text-xs text-gray-400 mb-6">Guarda este número para dar seguimiento a tu solicitud.</p>
-          <button className="btn-primary w-full" onClick={reset}>
-            Nueva solicitud
-          </button>
+          <button className="btn-primary w-full" onClick={reset}>Nueva solicitud</button>
         </div>
       </div>
     );
@@ -217,7 +212,6 @@ export default function ClientPortal() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-blue-50 px-4 py-10">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2.5 mb-2">
             <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">
@@ -242,60 +236,33 @@ export default function ClientPortal() {
             </div>
           )}
 
-          {/* Step 1 */}
           {step === 1 && (
             <div className="space-y-5">
               <div>
                 <p className="section-title">Información personal</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="form-label">
-                      Nombre completo <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      className={`form-input ${errors.customer_name ? "form-input-error" : ""}`}
-                      name="customer_name"
-                      value={form.customer_name}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="Juan Pérez"
-                      autoComplete="name"
-                    />
+                    <label className="form-label">Nombre completo <span className="text-red-400">*</span></label>
+                    <input className={`form-input ${errors.customer_name ? "form-input-error" : ""}`}
+                      name="customer_name" value={form.customer_name} onChange={handleChange} onBlur={handleBlur}
+                      placeholder="Juan Pérez" autoComplete="name" />
                     <FieldError msg={errors.customer_name} />
                   </div>
                   <div>
-                    <label className="form-label">
-                      Teléfono <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      className={`form-input ${errors.phone ? "form-input-error" : ""}`}
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="+1 555 000 0000"
-                      autoComplete="tel"
-                      type="tel"
-                    />
+                    <label className="form-label">Teléfono <span className="text-red-400">*</span></label>
+                    <input className={`form-input ${errors.phone ? "form-input-error" : ""}`}
+                      name="phone" value={form.phone} onChange={handleChange} onBlur={handleBlur}
+                      placeholder="+1 555 000 0000" autoComplete="tel" type="tel" />
                     <FieldError msg={errors.phone} />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="form-label">
-                  Correo electrónico <span className="text-red-400">*</span>
-                </label>
-                <input
-                  className={`form-input ${errors.email ? "form-input-error" : ""}`}
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="correo@ejemplo.com"
-                  autoComplete="email"
-                />
+                <label className="form-label">Correo electrónico <span className="text-red-400">*</span></label>
+                <input className={`form-input ${errors.email ? "form-input-error" : ""}`}
+                  type="email" name="email" value={form.email} onChange={handleChange} onBlur={handleBlur}
+                  placeholder="correo@ejemplo.com" autoComplete="email" />
                 <FieldError msg={errors.email} />
               </div>
 
@@ -303,34 +270,19 @@ export default function ClientPortal() {
                 <p className="section-title">Datos del vehículo</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="form-label">
-                      Número de placa <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      className={`form-input uppercase tracking-widest ${errors.plate ? "form-input-error" : ""}`}
-                      name="plate"
-                      value={form.plate}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="ABC 123"
-                      autoComplete="off"
-                    />
+                    <label className="form-label">Número de placa <span className="text-red-400">*</span></label>
+                    <input className={`form-input uppercase tracking-widest ${errors.plate ? "form-input-error" : ""}`}
+                      name="plate" value={form.plate} onChange={handleChange} onBlur={handleBlur}
+                      placeholder="ABC 123" autoComplete="off" />
                     <FieldError msg={errors.plate} />
                   </div>
                   <div>
-                    <label className="form-label">
-                      Tipo de trámite <span className="text-red-400">*</span>
-                    </label>
-                    <select
-                      className={`form-input ${errors.service_type ? "form-input-error" : ""}`}
-                      name="service_type"
-                      value={form.service_type}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    >
+                    <label className="form-label">Tipo de trámite <span className="text-red-400">*</span></label>
+                    <select className={`form-input ${errors.service_type ? "form-input-error" : ""}`}
+                      name="service_type" value={form.service_type} onChange={handleChange} onBlur={handleBlur}>
                       <option value="">Seleccionar...</option>
-                      {SERVICE_TYPES.map((s) => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {serviceTypes.map((s) => (
+                        <option key={s.slug} value={s.slug}>{s.name}</option>
                       ))}
                     </select>
                     <FieldError msg={errors.service_type} />
@@ -339,18 +291,9 @@ export default function ClientPortal() {
               </div>
 
               <div>
-                <label className="form-label">
-                  Comentarios{" "}
-                  <span className="text-gray-400 font-normal">(opcional)</span>
-                </label>
-                <textarea
-                  className="form-input resize-none"
-                  name="comments"
-                  value={form.comments}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="Información adicional sobre el trámite..."
-                />
+                <label className="form-label">Comentarios <span className="text-gray-400 font-normal">(opcional)</span></label>
+                <textarea className="form-input resize-none" name="comments" value={form.comments}
+                  onChange={handleChange} rows={3} placeholder="Información adicional sobre el trámite..." />
               </div>
 
               <div className="pt-2">
@@ -364,33 +307,33 @@ export default function ClientPortal() {
             </div>
           )}
 
-          {/* Step 2 */}
           {step === 2 && (
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
-              <FileUpload files={files} setFiles={setFiles} errors={fileErrors} />
+              {activeFields.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">Este trámite no requiere documentos adicionales.</p>
+              ) : (
+                <FileUpload
+                  fields={activeFields}
+                  files={files}
+                  setFiles={setFiles}
+                  textValues={textValues}
+                  setTextValues={setTextValues}
+                  errors={fileErrors}
+                />
+              )}
 
               {errors._global && (
-                <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-                  {errors._global}
-                </div>
+                <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{errors._global}</div>
               )}
 
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="btn-secondary flex-1"
-                >
+                <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                   </svg>
                   Atrás
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary flex-[2]"
-                >
+                <button type="submit" disabled={submitting} className="btn-primary flex-[2]">
                   {submitting ? (
                     <>
                       <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -399,9 +342,7 @@ export default function ClientPortal() {
                       </svg>
                       Enviando...
                     </>
-                  ) : (
-                    "Enviar solicitud"
-                  )}
+                  ) : "Enviar solicitud"}
                 </button>
               </div>
             </form>
@@ -410,9 +351,7 @@ export default function ClientPortal() {
 
         <p className="text-center text-xs text-gray-400 mt-6">
           ¿Acceso administrativo?{" "}
-          <a href="/admin" className="text-brand-600 hover:underline font-medium">
-            Ir al dashboard →
-          </a>
+          <a href="/admin" className="text-brand-600 hover:underline font-medium">Ir al dashboard →</a>
         </p>
       </div>
     </div>

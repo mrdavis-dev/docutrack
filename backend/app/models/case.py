@@ -5,13 +5,6 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class ServiceType(str, enum.Enum):
-    RENOVACION_PLACA = "RENOVACION_PLACA"
-    TRASPASO = "TRASPASO"
-    REVISADO = "REVISADO"
-    DUPLICADO = "DUPLICADO"
-
-
 class CaseStatus(str, enum.Enum):
     NUEVO = "NUEVO"
     PENDIENTE_REVISION = "PENDIENTE_REVISION"
@@ -31,7 +24,7 @@ class Case(Base):
     phone = Column(String(50), nullable=False)
     email = Column(String(200), nullable=False)
     plate = Column(String(20), nullable=False)
-    service_type = Column(Enum(ServiceType), nullable=False)
+    service_type = Column(String(100), nullable=False)
     status = Column(Enum(CaseStatus), default=CaseStatus.NUEVO, nullable=False)
     comments = Column(Text, nullable=True)
     internal_notes = Column(Text, nullable=True)
