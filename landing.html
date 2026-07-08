@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocuTrack — Gestión de trámites sin papel</title>
+<style>
+  :root {
+    --navy:       #0B1F3A;
+    --navy-panel: #1A3A5C;
+    --teal:       #00C2A8;
+    --teal-dim:   #009E89;
+    --off-white:  #F0F4F8;
+    --steel:      #C8D6E5;
+    --text-main:  #0B1F3A;
+    --text-muted: #5A7A9B;
+    --surface:    #FFFFFF;
+    --border:     #D6E4F0;
+    --hero-bg:    #0B1F3A;
+    --hero-text:  #F0F4F8;
+    --hero-muted: #8BAEC8;
+    --card-bg:    #FFFFFF;
+    --card-border:#D6E4F0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-main:  #E8F0F8; --text-muted: #8BAEC8;
+      --surface:    #0F2640; --border:     #1E3D5C;
+      --off-white:  #0B1F3A; --steel:      #3A6080;
+      --card-bg:    #132E4A; --card-border:#1E3D5C;
+    }
+  }
+  :root[data-theme="light"] {
+    --text-main:#0B1F3A; --text-muted:#5A7A9B; --surface:#FFFFFF;
+    --border:#D6E4F0; --off-white:#F0F4F8; --steel:#C8D6E5;
+    --card-bg:#FFFFFF; --card-border:#D6E4F0;
+  }
+  :root[data-theme="dark"] {
+    --text-main:#E8F0F8; --text-muted:#8BAEC8; --surface:#0F2640;
+    --border:#1E3D5C; --off-white:#0B1F3A; --steel:#3A6080;
+    --card-bg:#132E4A; --card-border:#1E3D5C;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--off-white); color: var(--text-main);
+    line-height: 1.6; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { cursor: pointer; font: inherit; border: none; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+  .t-eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); }
+  .t-display {
+    font-family:'Trebuchet MS',Arial,sans-serif; font-size:clamp(2.4rem,6vw,4.2rem);
+    font-weight:900; line-height:1.06; letter-spacing:-.02em; text-wrap:balance;
+  }
+  .t-display em { font-style:normal; color:var(--teal); }
+  .t-h2 { font-family:'Trebuchet MS',Arial,sans-serif; font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; line-height:1.15; letter-spacing:-.015em; text-wrap:balance; }
+  .t-h3 { font-size:1rem; font-weight:700; letter-spacing:-.01em; }
+  .t-body { font-size:1rem; line-height:1.7; }
+  .t-small { font-size:.85rem; line-height:1.6; }
+  .t-muted { color:var(--text-muted); }
+  .t-mono { font-family:'Courier New',monospace; font-variant-numeric:tabular-nums; }
+  .wrap { max-width:1160px; margin:0 auto; padding:0 24px; }
+  .wrap-narrow { max-width:780px; margin:0 auto; padding:0 24px; }
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(11,31,58,.88); backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(0,194,168,.15);
+  }
+  .nav-inner { display:flex; align-items:center; justify-content:space-between; height:58px; max-width:1160px; margin:0 auto; padding:0 24px; }
+  .nav-logo { font-family:'Trebuchet MS',Arial,sans-serif; font-weight:900; font-size:1.15rem; letter-spacing:-.02em; color:#F0F4F8; display:flex; align-items:center; gap:8px; }
+  .nav-logo-mark { width:28px; height:28px; background:var(--teal); border-radius:7px; display:flex; align-items:center; justify-content:center; }
+  .nav-logo-mark svg { width:16px; height:16px; }
+  .nav-links { display:flex; align-items:center; gap:28px; }
+  .nav-links a { color:#8BAEC8; font-size:.875rem; font-weight:500; transition:color .2s; }
+  .nav-links a:hover { color:#F0F4F8; }
+  .nav-cta { background:var(--teal); color:#0B1F3A !important; font-size:.8rem; font-weight:700; letter-spacing:.03em; padding:8px 18px; border-radius:6px; transition:background .2s,transform .15s; }
+  .nav-cta:hover { background:#00d9bc; transform:translateY(-1px); color:#0B1F3A !important; }
+  @media (max-width:640px) { .nav-links { display:none; } }
+  .hero { background:var(--navy); padding:120px 0 80px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; top:-40%; right:-10%; width:600px; height:600px; background:radial-gradient(circle,rgba(0,194,168,.12) 0%,transparent 70%); pointer-events:none; }
+  .hero::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(0,194,168,.4),transparent); }
+  .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+  @media (max-width:860px) { .hero-grid { grid-template-columns:1fr; } .hero-visual { order:-1; } }
+  .hero-copy { color:var(--hero-text); }
+  .hero-copy .t-eyebrow { margin-bottom:18px; }
+  .hero-copy .t-display { color:var(--hero-text); margin-bottom:22px; }
+  .hero-copy .t-body { color:var(--hero-muted); margin-bottom:36px; max-width:440px; }
+  .hero-actions { display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-primary { background:var(--teal); color:#0B1F3A; font-weight:700; font-size:.9rem; padding:13px 26px; border-radius:8px; transition:background .2s,transform .15s,box-shadow .2s; display:inline-flex; align-items:center; gap:8px; }
+  .btn-primary:hover { background:#00d9bc; transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,194,168,.35); }
+  .btn-ghost { background:transparent; color:var(--hero-muted); font-weight:600; font-size:.9rem; padding:13px 22px; border-radius:8px; border:1px solid rgba(200,214,229,.25); transition:border-color .2s,color .2s; }
+  .btn-ghost:hover { border-color:rgba(200,214,229,.6); color:var(--hero-text); }
+  .hero-visual { position:relative; }
+  .mock-card { background:var(--navy-panel); border:1px solid rgba(0,194,168,.2); border-radius:14px; padding:20px; box-shadow:0 24px 60px rgba(0,0,0,.4); max-width:400px; margin:0 auto; position:relative; }
+  .mock-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid rgba(200,214,229,.12); }
+  .mock-title { font-size:.8rem; font-weight:700; color:#E8F0F8; letter-spacing:.04em; text-transform:uppercase; }
+  .mock-dot { width:8px; height:8px; border-radius:50%; background:var(--teal); animation:pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,194,168,.5)} 50%{opacity:.8;box-shadow:0 0 0 6px rgba(0,194,168,0)} }
+  .mock-case { background:rgba(255,255,255,.05); border:1px solid rgba(200,214,229,.1); border-radius:9px; padding:12px 14px; margin-bottom:9px; display:flex; align-items:center; gap:12px; transition:background .2s; }
+  .mock-case:hover { background:rgba(255,255,255,.08); }
+  .mock-case-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.85rem; }
+  .icon-nuevo { background:rgba(0,194,168,.25); }
+  .icon-proceso { background:rgba(99,179,237,.2); }
+  .icon-final { background:rgba(72,187,120,.2); }
+  .mock-case-info { flex:1; min-width:0; }
+  .mock-case-name { font-size:.78rem; font-weight:600; color:#E8F0F8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mock-case-sub { font-size:.68rem; color:#8BAEC8; margin-top:1px; }
+  .mock-badge { font-size:.62rem; font-weight:700; letter-spacing:.06em; padding:3px 8px; border-radius:4px; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+  .badge-nuevo { background:rgba(0,194,168,.15); color:var(--teal); }
+  .badge-proceso { background:rgba(99,179,237,.15); color:#63b3ed; }
+  .badge-final { background:rgba(72,187,120,.15); color:#48bb78; }
+  .mock-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px; }
+  .mock-stat { background:rgba(255,255,255,.04); border:1px solid rgba(200,214,229,.08); border-radius:7px; padding:10px 10px 8px; text-align:center; }
+  .mock-stat-val { font-size:1.1rem; font-weight:800; color:#E8F0F8; line-height:1; font-variant-numeric:tabular-nums; }
+  .mock-stat-label { font-size:.6rem; color:#8BAEC8; margin-top:3px; text-transform:uppercase; letter-spacing:.06em; }
+  .mock-float { position:absolute; right:-24px; bottom:-24px; background:var(--teal); border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,194,168,.4); animation:float-card 4s ease-in-out infinite; }
+  @keyframes float-card { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  .mock-float-text { font-size:.72rem; font-weight:700; color:#0B1F3A; }
+  .mock-float-sub { font-size:.62rem; color:rgba(11,31,58,.65); }
+  .stats-bar { background:var(--navy-panel); border-top:1px solid rgba(0,194,168,.15); border-bottom:1px solid rgba(0,194,168,.08); padding:28px 0; }
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); }
+  @media (max-width:640px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
+  .stat-item { padding:0 24px; border-right:1px solid rgba(200,214,229,.1); text-align:center; }
+  .stat-item:last-child { border-right:none; }
+  .stat-val { font-family:'Trebuchet MS',Arial,sans-serif; font-size:2rem; font-weight:900; color:var(--teal); line-height:1; font-variant-numeric:tabular-nums; }
+  .stat-label { font-size:.75rem; color:#8BAEC8; margin-top:5px; letter-spacing:.04em; }
+  .section { padding:80px 0; }
+  .section-light { background:var(--off-white); }
+  .section-dark { background:var(--navy); }
+  .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:48px; }
+  @media (max-width:860px) { .feature-grid { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .feature-grid { grid-template-columns:1fr; } }
+  .feature-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:28px; transition:box-shadow .2s,transform .2s; }
+  .feature-card:hover { box-shadow:0 12px 32px rgba(11,31,58,.1); transform:translateY(-2px); }
+  .section-dark .feature-card { background:var(--navy-panel); border-color:rgba(0,194,168,.15); }
+  .feature-icon { width:44px; height:44px; border-radius:10px; background:rgba(0,194,168,.12); display:flex; align-items:center; justify-content:center; margin-bottom:18px; }
+  .feature-icon svg { width:22px; height:22px; color:var(--teal); }
+  .section-dark .t-h3 { color:#E8F0F8; }
+  .section-dark .t-small { color:#8BAEC8; }
+  .feature-card .t-h3 { margin-bottom:8px; }
+  .steps { display:flex; flex-direction:column; margin-top:48px; }
+  .step { display:grid; grid-template-columns:52px 1fr; gap:20px; padding-bottom:32px; }
+  .step:last-child { padding-bottom:0; }
+  .step-num-col { display:flex; flex-direction:column; align-items:center; }
+  .step-num { width:44px; height:44px; border-radius:50%; background:var(--teal); color:#0B1F3A; font-weight:900; font-size:.95rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .step-line { width:2px; flex:1; background:linear-gradient(to bottom,rgba(0,194,168,.4),rgba(0,194,168,.05)); margin-top:6px; }
+  .step:last-child .step-line { display:none; }
+  .step-body { padding-top:10px; }
+  .step-body .t-h3 { margin-bottom:6px; }
+  .tramites-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:40px; }
+  @media (max-width:560px) { .tramites-grid { grid-template-columns:1fr; } }
+  .tramite-card { background:var(--navy-panel); border:1px solid rgba(0,194,168,.15); border-radius:12px; padding:22px; display:flex; align-items:flex-start; gap:14px; transition:border-color .2s; }
+  .tramite-card:hover { border-color:rgba(0,194,168,.45); }
+  .tramite-num { font-family:'Trebuchet MS',Arial,sans-serif; font-size:1.6rem; font-weight:900; color:rgba(0,194,168,.25); line-height:1; min-width:32px; font-variant-numeric:tabular-nums; }
+  .tramite-info .t-h3 { color:#E8F0F8; margin-bottom:4px; }
+  .tramite-info .t-small { color:#8BAEC8; }
+  .cta-section { background:linear-gradient(135deg,#0B1F3A 0%,#0d2d50 50%,#0B1F3A 100%); padding:96px 0; text-align:center; position:relative; overflow:hidden; }
+  .cta-section::before { content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:600px; height:400px; background:radial-gradient(ellipse,rgba(0,194,168,.1) 0%,transparent 70%); pointer-events:none; }
+  .cta-section .t-display { color:#F0F4F8; margin:16px 0 22px; }
+  .cta-section .t-body { color:#8BAEC8; margin-bottom:36px; }
+  .btn-whatsapp { display:inline-flex; align-items:center; gap:10px; background:#25D366; color:#fff; font-weight:700; font-size:1rem; padding:15px 32px; border-radius:50px; transition:background .2s,transform .15s,box-shadow .2s; box-shadow:0 4px 20px rgba(37,211,102,.35); }
+  .btn-whatsapp:hover { background:#20bd5a; transform:translateY(-2px); box-shadow:0 8px 28px rgba(37,211,102,.5); }
+  .btn-whatsapp:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+  .cta-note { font-size:.75rem; color:#5A7A9B; margin-top:18px; }
+  footer { background:#07152A; border-top:1px solid rgba(0,194,168,.1); padding:40px 0 28px; }
+  .footer-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .footer-logo { font-family:'Trebuchet MS',Arial,sans-serif; font-weight:900; color:#F0F4F8; font-size:1rem; }
+  .footer-copy { font-size:.78rem; color:#4A6A8A; }
+  .footer-links { display:flex; gap:20px; }
+  .footer-links a { font-size:.78rem; color:#4A6A8A; transition:color .2s; }
+  .footer-links a:hover { color:var(--teal); }
+  .teal-rule { width:40px; height:3px; background:var(--teal); border-radius:2px; margin:14px 0 20px; }
+  .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>
+</head>
+<body>
+
+<nav role="navigation" aria-label="Navegación principal">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" aria-label="DocuTrack inicio">
+      <div class="nav-logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      DocuTrack
+    </a>
+    <div class="nav-links" role="list">
+      <a href="#como-funciona" role="listitem">Cómo funciona</a>
+      <a href="#tramites" role="listitem">Trámites</a>
+      <a href="#funciones" role="listitem">Funciones</a>
+      <a href="https://wa.me/50764333125?text=Hola%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20DocuTrack" target="_blank" rel="noopener noreferrer" class="nav-cta" role="listitem">Solicitar demo</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero" aria-label="Encabezado principal">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="t-eyebrow">Plataforma de gestión de trámites</p>
+        <h1 class="t-display">Tus trámites,<br>sin<em> caos</em><br>de papeles</h1>
+        <p class="t-body">DocuTrack centraliza solicitudes, documentos y seguimiento de casos en un solo sistema — para cualquier tipo de trámite. Los clientes suben todo en línea; tú gestionas desde el dashboard.</p>
+        <div class="hero-actions">
+          <a href="https://wa.me/50764333125?text=Hola%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20DocuTrack" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Hablar por WhatsApp
+          </a>
+          <a href="#como-funciona" class="btn-ghost">¿Cómo funciona?</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock-card">
+          <div class="mock-header">
+            <span class="mock-title t-mono">Panel de casos</span>
+            <div class="mock-dot"></div>
+          </div>
+          <div class="mock-case">
+            <div class="mock-case-icon icon-nuevo">📄</div>
+            <div class="mock-case-info">
+              <div class="mock-case-name">Carlos Mendoza — Licencia</div>
+              <div class="mock-case-sub t-mono">Hace 12 min · 3 docs ✓</div>
+            </div>
+            <span class="mock-badge badge-nuevo">Nuevo</span>
+          </div>
+          <div class="mock-case">
+            <div class="mock-case-icon icon-proceso">📋</div>
+            <div class="mock-case-info">
+              <div class="mock-case-name">Ana Torres — Permiso comercial</div>
+              <div class="mock-case-sub t-mono">Hace 45 min · Revisando</div>
+            </div>
+            <span class="mock-badge badge-proceso">En proceso</span>
+          </div>
+          <div class="mock-case">
+            <div class="mock-case-icon icon-final">✅</div>
+            <div class="mock-case-info">
+              <div class="mock-case-name">Luis Pérez — Renovación placa</div>
+              <div class="mock-case-sub t-mono">Hoy 9:15 · Completado</div>
+            </div>
+            <span class="mock-badge badge-final">Finalizado</span>
+          </div>
+          <div class="mock-stats">
+            <div class="mock-stat"><div class="mock-stat-val t-mono">24</div><div class="mock-stat-label">Hoy</div></div>
+            <div class="mock-stat"><div class="mock-stat-val t-mono">3</div><div class="mock-stat-label">Pendientes</div></div>
+            <div class="mock-stat"><div class="mock-stat-val t-mono">98%</div><div class="mock-stat-label">A tiempo</div></div>
+          </div>
+          <div class="mock-float">
+            <span>⚡</span>
+            <div><div class="mock-float-text">Alerta SLA</div><div class="mock-float-sub">1 caso sin atender</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-val t-mono">100%</div><div class="stat-label">Digital, sin papel</div></div>
+      <div class="stat-item"><div class="stat-val t-mono">&lt;2 min</div><div class="stat-label">Tiempo de carga</div></div>
+      <div class="stat-item"><div class="stat-val t-mono">SLA</div><div class="stat-label">Alertas automáticas</div></div>
+      <div class="stat-item"><div class="stat-val t-mono">∞</div><div class="stat-label">Tipos de trámite</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="section section-light" id="como-funciona">
+  <div class="wrap-narrow">
+    <p class="t-eyebrow">Proceso</p>
+    <h2 class="t-h2">De la solicitud al expediente en minutos</h2>
+    <div class="teal-rule"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num-col"><div class="step-num">1</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <h3 class="t-h3">El cliente llena el formulario en línea</h3>
+          <p class="t-small t-muted">Desde cualquier dispositivo: elige el tipo de trámite, ingresa sus datos y sube exactamente los documentos requeridos. Sin papel, sin visitas innecesarias.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num">2</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <h3 class="t-h3">El sistema crea el caso y notifica al equipo</h3>
+          <p class="t-small t-muted">DocuTrack genera el expediente automáticamente y envía notificación por correo a tu equipo. El cliente recibe confirmación inmediata.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num">3</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <h3 class="t-h3">El admin revisa, actualiza estado y agrega notas</h3>
+          <p class="t-small t-muted">Desde el dashboard puedes ver todos los casos activos, cambiar el estado (Nuevo → En proceso → Finalizado) y dejar notas internas desde donde estés.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num">4</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <h3 class="t-h3">Alertas automáticas si un caso se estanca</h3>
+          <p class="t-small t-muted">Si un caso pasa demasiado tiempo sin atención, el sistema envía una alerta de SLA para que nada se pierda entre las grietas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark" id="tramites">
+  <div class="wrap">
+    <p class="t-eyebrow" style="color:var(--teal)">Trámites</p>
+    <h2 class="t-h2" style="color:#F0F4F8">Cualquier trámite,<br>exactamente como lo necesitas</h2>
+    <div class="teal-rule"></div>
+    <p class="t-body" style="color:#8BAEC8;max-width:540px;margin-bottom:0">Desde el panel de administración creas, editas o desactivas trámites y defines exactamente qué documentos o datos pide cada uno — sin tocar código.</p>
+    <div class="tramites-grid">
+      <div class="tramite-card">
+        <span class="tramite-num t-mono">01</span>
+        <div class="tramite-info">
+          <h3 class="t-h3">Trámites vehiculares</h3>
+          <p class="t-small">Renovación de placa, traspaso, revisado técnico, duplicado — con sus documentos específicos.</p>
+        </div>
+      </div>
+      <div class="tramite-card">
+        <span class="tramite-num t-mono">02</span>
+        <div class="tramite-info">
+          <h3 class="t-h3">Permisos y licencias</h3>
+          <p class="t-small">Operación comercial, licencias municipales, habilitaciones — cada uno con sus requisitos propios.</p>
+        </div>
+      </div>
+      <div class="tramite-card">
+        <span class="tramite-num t-mono">03</span>
+        <div class="tramite-info">
+          <h3 class="t-h3">Documentos legales</h3>
+          <p class="t-small">Poderes notariales, escrituras, certificaciones — define campos de archivo y texto libre.</p>
+        </div>
+      </div>
+      <div class="tramite-card">
+        <span class="tramite-num t-mono">∞</span>
+        <div class="tramite-info">
+          <h3 class="t-h3">Lo que sea que gestiones</h3>
+          <p class="t-small">DocuTrack no te impone un catálogo fijo. Crea los trámites de tu negocio en minutos.</p>
+        </div>
+      </div>
+    </div>
+    <p class="t-small" style="color:#8BAEC8;margin-top:20px;">Campos de archivo (PDF/imagen) y texto libre en la misma solicitud.</p>
+  </div>
+</section>
+
+<section class="section section-light" id="funciones">
+  <div class="wrap">
+    <p class="t-eyebrow">Funciones</p>
+    <h2 class="t-h2">Todo lo que tu operación necesita, nada que no</h2>
+    <div class="teal-rule"></div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+        <h3 class="t-h3">Portal de cliente</h3>
+        <p class="t-small t-muted">Formulario web limpio para que tus clientes suban documentos sin cuenta ni contraseña.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <h3 class="t-h3">Dashboard administrativo</h3>
+        <p class="t-small t-muted">Vista centralizada de todos los casos: filtra por estado, revisa documentos, actualiza el progreso.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
+        <h3 class="t-h3">Alertas SLA</h3>
+        <p class="t-small t-muted">Configura el umbral de tiempo y recibe alertas por email antes de que un caso incumpla el plazo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg></div>
+        <h3 class="t-h3">Trámites configurables</h3>
+        <p class="t-small t-muted">Crea o modifica trámites desde el admin sin tocar código. Define qué campos pedir (archivos o texto).</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg></div>
+        <h3 class="t-h3">Almacenamiento seguro</h3>
+        <p class="t-small t-muted">Documentos en volumen persistente. Descarga y visualiza archivos directamente desde el caso.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div>
+        <h3 class="t-h3">Rápido de implementar</h3>
+        <p class="t-small t-muted">Levanta todo con Docker Compose en minutos. Sin dependencias complejas ni configuraciones difíciles.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="contacto">
+  <div class="wrap" style="position:relative;z-index:1;">
+    <p class="t-eyebrow">Empieza hoy</p>
+    <h2 class="t-display">¿Listo para<em> ordenar</em><br>tu operación?</h2>
+    <p class="t-body">Hablemos por WhatsApp y te mostramos cómo DocuTrack se adapta a tus trámites en menos de una hora.</p>
+    <a href="https://wa.me/50764333125?text=Hola%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20DocuTrack" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Hablar por WhatsApp
+    </a>
+    <p class="cta-note">Sin compromisos. Te respondemos al momento.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <span class="footer-logo">DocuTrack</span>
+      <div class="footer-links">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#tramites">Trámites</a>
+        <a href="#funciones">Funciones</a>
+      </div>
+      <span class="footer-copy">© 2026 DocuTrack. Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.style.opacity='1'; entry.target.style.transform='translateY(0)'; }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.feature-card, .step, .tramite-card').forEach(el => {
+    el.style.opacity='0'; el.style.transform='translateY(18px)'; el.style.transition='opacity .4s ease, transform .4s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
