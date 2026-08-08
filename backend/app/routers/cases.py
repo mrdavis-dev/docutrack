@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.case import Case, Document, CaseStatus
 from app.models.service import ServiceType
-from app.schemas.case import CaseCreate, CaseOut, CaseList, CaseStatusUpdate
+from app.schemas.case import CaseCreate, CaseOut, CaseList, CaseStatusUpdate, CaseTotalUpdate
 from app.services.email import send_new_case_business, send_confirmation_client
 from app.utils.auth import require_admin
 
@@ -36,13 +36,17 @@ def list_cases(
     skip: int = 0,
     limit: int = 100,
     status: CaseStatus = None,
+    q: str = None,
     db: Session = Depends(get_db),
     _: str = Depends(require_admin),
 ):
-    q = db.query(Case)
+    query = db.query(Case)
     if status:
-        q = q.filter(Case.status == status)
-    cases = q.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        query = query.filter(Case.status == status)
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        query = query.filter((Case.customer_name.ilike(term)) | (Case.phone.ilike(term)))
+    cases = query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
     result = []
     for c in cases:
         item = CaseList(
@@ -93,4 +97,21 @@ def update_status(
     db.commit()
     db.refresh(case)
     logger.info("Case #%d status -> %s", case_id, payload.status)
+    return case
+
+
+@router.patch("/{case_id}/total", response_model=CaseOut)
+def update_total(
+    case_id: int,
+    payload: CaseTotalUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(require_admin),
+):
+    case = db.query(Case).filter(Case.id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+    case.total_amount = payload.total_amount
+    db.commit()
+    db.refresh(case)
+    logger.info("Case #%d total set -> %s", case_id, payload.total_amount)
     return case

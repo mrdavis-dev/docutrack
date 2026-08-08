@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Enum, ForeignKey, Numeric
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -28,10 +28,12 @@ class Case(Base):
     status = Column(Enum(CaseStatus), default=CaseStatus.NUEVO, nullable=False)
     comments = Column(Text, nullable=True)
     internal_notes = Column(Text, nullable=True)
+    total_amount = Column(Numeric(10, 2), nullable=True)  # set by admin, not the client
     alert_sent = Column(Boolean, default=False, nullable=False)
     last_status_update = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     documents = relationship("Document", back_populates="case", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="case", cascade="all, delete-orphan", order_by="Payment.created_at")
 
 
 class Document(Base):
@@ -45,3 +47,19 @@ class Document(Base):
     uploaded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     case = relationship("Case", back_populates="documents")
+
+
+class Payment(Base):
+    """An abono (partial or full payment) registered against a case."""
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
+    amount = Column(Numeric(10, 2), nullable=False)
+    method = Column(String(50), nullable=True)  # efectivo, transferencia, tarjeta...
+    note = Column(String(255), nullable=True)
+    receipt_document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    case = relationship("Case", back_populates="payments")
+    receipt = relationship("Document")

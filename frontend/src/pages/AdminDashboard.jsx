@@ -41,11 +41,14 @@ export default function AdminDashboard() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
 
   const loadCases = useCallback(async () => {
     setLoading(true);
     try {
-      const params = statusFilter ? { status: statusFilter } : {};
+      const params = {};
+      if (statusFilter) params.status = statusFilter;
+      if (search.trim()) params.q = search.trim();
       const { data } = await listCases(params);
       setCases(data);
     } catch {
@@ -53,11 +56,13 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, search]);
 
   useEffect(() => {
-    if (authed) loadCases();
-  }, [authed, loadCases]);
+    if (!authed) return;
+    const t = setTimeout(loadCases, search ? 300 : 0); // debounce typing only
+    return () => clearTimeout(t);
+  }, [authed, loadCases, search]);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -237,6 +242,19 @@ export default function AdminDashboard() {
                 {loading ? "Cargando..." : `${cases.length} ${cases.length === 1 ? "caso" : "casos"}${activeFilter && activeFilter.value ? ` · ${activeFilter.label}` : ""}`}
               </p>
             </div>
+          </div>
+
+          {/* Search by name or phone */}
+          <div className="relative max-w-sm">
+            <svg className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              className="form-input pl-9"
+              placeholder="Buscar por nombre o celular..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
           {/* Status pill filters */}

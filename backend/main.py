@@ -3,11 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
-from app.database import engine
 from app.models.case import Case, Document  # noqa: F401 — ensure models registered
 from app.models.service import ServiceType, ServiceField  # noqa: F401
-from app.database import Base
-from app.routers import cases, files
+from app.routers import cases, files, payments
 from app.routers import services
 from app.tasks.sla import check_sla
 from app.config import settings
@@ -23,7 +21,8 @@ scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    # ponytail: schema is owned by alembic (run before uvicorn starts, see docker-compose command).
+    # create_all here would mask a failed/drifted migration.
     scheduler.add_job(check_sla, "interval", seconds=settings.SLA_CHECK_INTERVAL, id="sla_check")
     scheduler.start()
     logger.info("SLA scheduler started — interval %ds", settings.SLA_CHECK_INTERVAL)
@@ -40,7 +39,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,6 +48,7 @@ app.add_middleware(
 app.include_router(cases.router)
 app.include_router(files.router)
 app.include_router(services.router)
+app.include_router(payments.router)
 
 
 @app.get("/health")

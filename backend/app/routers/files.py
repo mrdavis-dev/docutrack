@@ -74,4 +74,5 @@ def download_file(
         path=str(path),
         media_type=media_type or "application/octet-stream",
         filename=doc.file_name,
+        content_disposition_type="inline",  # let the frontend decide view vs download; attachment forces a browser download prompt
     )

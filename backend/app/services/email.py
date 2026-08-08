@@ -12,17 +12,24 @@ def _get_api():
     return sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 
 
-def send_email(to_email: str, to_name: str, subject: str, html_content: str) -> bool:
+def send_email(to_email: str, to_name: str, subject: str, html_content: str, attachment: dict = None) -> bool:
+    """attachment: optional {"name": str, "content_b64": str}"""
     if not settings.BREVO_API_KEY:
         logger.warning("BREVO_API_KEY not set — skipping email to %s", to_email)
         return False
     try:
         api = _get_api()
+        kwargs = {}
+        if attachment:
+            kwargs["attachment"] = [
+                sib_api_v3_sdk.SendSmtpEmailAttachment(content=attachment["content_b64"], name=attachment["name"])
+            ]
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{"email": to_email, "name": to_name}],
             sender={"email": settings.SMTP_FROM, "name": settings.SMTP_FROM_NAME},
             subject=subject,
             html_content=html_content,
+            **kwargs,
         )
         api.send_transac_email(send_smtp_email)
         logger.info("Email sent to %s — %s", to_email, subject)
@@ -78,3 +85,19 @@ def send_sla_alert(case_id: int, customer_name: str, plate: str, minutes_elapsed
     <p>Por favor atiéndelo lo antes posible.</p>
     """
     send_email(settings.BUSINESS_EMAIL, "DocuCars Admin", subject, html)
+
+
+def send_payment_receipt(case_id: int, customer_name: str, customer_email: str, amount, receipt_name: str, receipt_b64: str):
+    subject = f"[DocuCars] Comprobante de pago — caso #{case_id}"
+    html = f"""
+    <h2>Hola {customer_name},</h2>
+    <p>Adjuntamos el comprobante de tu abono registrado para el caso <b>#{case_id}</b>.</p>
+    <table>
+      <tr><td><b>Monto:</b></td><td>${amount}</td></tr>
+    </table>
+    <p>— Equipo DocuCars</p>
+    """
+    return send_email(
+        customer_email, customer_name, subject, html,
+        attachment={"name": receipt_name, "content_b64": receipt_b64},
+    )

@@ -35,11 +35,16 @@ export const createCase = (data) => api.post("/cases", data);
 export const listCases = (params) => api.get("/cases", { params });
 export const getCase = (id) => api.get(`/cases/${id}`);
 export const updateCaseStatus = (id, data) => api.patch(`/cases/${id}/status`, data);
+export const updateCaseTotal = (id, total_amount) => api.patch(`/cases/${id}/total`, { total_amount });
 
 // Files
 export const uploadFiles = (formData) =>
   api.post("/upload", formData, { headers: { "Content-Type": "multipart/form-data" } });
 export const getFileUrl = (documentId) => `${BASE_URL}/files/${documentId}`;
+// Auth is HTTP Basic — a plain <a href> triggers a fresh browser login prompt.
+// Fetch through axios (which carries api.defaults.auth) and hand back a blob: URL instead.
+export const fetchFileBlob = (documentId) =>
+  api.get(`/files/${documentId}`, { responseType: "blob" });
 
 // Service Types (public read, admin write)
 export const listServiceTypes = (includeInactive = false) =>
@@ -47,6 +52,13 @@ export const listServiceTypes = (includeInactive = false) =>
 export const createServiceType = (data) => api.post("/service-types", data);
 export const updateServiceType = (id, data) => api.patch(`/service-types/${id}`, data);
 export const deleteServiceType = (id) => api.delete(`/service-types/${id}`);
+
+// Payments (abonos)
+export const listPayments = (caseId) => api.get(`/cases/${caseId}/payments`);
+export const createPayment = (caseId, formData) =>
+  api.post(`/cases/${caseId}/payments`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+export const sendPaymentReceipt = (caseId, paymentId) =>
+  api.post(`/cases/${caseId}/payments/${paymentId}/send-receipt`);
 
 export const listServiceFields = (stId) => api.get(`/service-types/${stId}/fields`);
 export const createServiceField = (stId, data) => api.post(`/service-types/${stId}/fields`, data);

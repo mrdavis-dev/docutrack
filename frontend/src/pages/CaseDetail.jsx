@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getCase, updateCaseStatus, getFileUrl } from "../services/api";
+import { getCase, updateCaseStatus, updateCaseTotal, fetchFileBlob, createPayment, sendPaymentReceipt } from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 import TimeElapsed from "../components/TimeElapsed";
 
@@ -77,6 +77,56 @@ export default function CaseDetail() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [preview, setPreview] = useState(null); // { url, name, isImage, loadingId } | null
+  const [docBusyId, setDocBusyId] = useState(null);
+  const [payForm, setPayForm] = useState({ amount: "", method: "", note: "", receipt: null });
+  const [payError, setPayError] = useState("");
+  const [payBusy, setPayBusy] = useState(false);
+  const [sendBusyId, setSendBusyId] = useState(null);
+  const [sendOkId, setSendOkId] = useState(null);
+  const [editingTotal, setEditingTotal] = useState(false);
+  const [totalInput, setTotalInput] = useState("");
+  const [totalBusy, setTotalBusy] = useState(false);
+  const [totalError, setTotalError] = useState("");
+
+  // Basic Auth needs axios (carries the saved credentials); a plain <a href>
+  // would hit the API unauthenticated and pop the browser's native login dialog.
+  async function loadDocBlob(doc) {
+    const { data } = await fetchFileBlob(doc.id);
+    const isImage = data.type.startsWith("image/");
+    return { blob: data, url: URL.createObjectURL(data), isImage };
+  }
+
+  async function handleView(doc) {
+    setDocBusyId(doc.id);
+    try {
+      const { url, isImage } = await loadDocBlob(doc);
+      if (isImage) {
+        setPreview({ url, name: doc.file_name });
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer"); // e.g. PDFs — let the browser handle it
+      }
+    } catch {
+      setSaveError("No se pudo cargar el documento.");
+    } finally {
+      setDocBusyId(null);
+    }
+  }
+
+  async function handleDownload(doc) {
+    setDocBusyId(doc.id);
+    try {
+      const { url } = await loadDocBlob(doc);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.file_name;
+      a.click();
+    } catch {
+      setSaveError("No se pudo descargar el documento.");
+    } finally {
+      setDocBusyId(null);
+    }
+  }
 
   const fetchCase = useCallback(async () => {
     setLoading(true);
@@ -117,6 +167,65 @@ export default function CaseDetail() {
     }
   }
 
+  async function handleSaveTotal() {
+    const n = Number(totalInput);
+    if (!n || n <= 0) {
+      setTotalError("Ingresa un total válido.");
+      return;
+    }
+    setTotalBusy(true);
+    setTotalError("");
+    try {
+      const { data } = await updateCaseTotal(id, n);
+      setCaseData(data);
+      setEditingTotal(false);
+    } catch (err) {
+      setTotalError(err?.response?.data?.detail || "No se pudo guardar el total.");
+    } finally {
+      setTotalBusy(false);
+    }
+  }
+
+  async function handleAddPayment(e) {
+    e.preventDefault();
+    if (payBusy) return;
+    const amountNum = Number(payForm.amount);
+    if (!amountNum || amountNum <= 0) {
+      setPayError("Ingresa un monto válido.");
+      return;
+    }
+    setPayBusy(true);
+    setPayError("");
+    try {
+      const fd = new FormData();
+      fd.append("amount", amountNum);
+      if (payForm.method) fd.append("method", payForm.method);
+      if (payForm.note) fd.append("note", payForm.note);
+      if (payForm.receipt) fd.append("receipt", payForm.receipt);
+      const { data: newPayment } = await createPayment(id, fd);
+      setCaseData((c) => ({ ...c, payments: [...c.payments, newPayment] }));
+      setPayForm({ amount: "", method: "", note: "", receipt: null });
+    } catch (err) {
+      setPayError(err?.response?.data?.detail || "No se pudo registrar el abono.");
+    } finally {
+      setPayBusy(false);
+    }
+  }
+
+  async function handleSendReceipt(paymentId) {
+    setSendBusyId(paymentId);
+    setPayError("");
+    try {
+      await sendPaymentReceipt(id, paymentId);
+      setSendOkId(paymentId);
+      setTimeout(() => setSendOkId(null), 3500);
+    } catch (err) {
+      setPayError(err?.response?.data?.detail || "No se pudo enviar el comprobante por correo.");
+    } finally {
+      setSendBusyId(null);
+    }
+  }
+
   // ── LOADING ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -150,6 +259,7 @@ export default function CaseDetail() {
 
   const noteEntries = parseNotes(caseData.internal_notes);
   const statusChanged = newStatus !== caseData.status;
+  const paymentsTotal = (caseData.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
 
   // ── DETAIL ─────────────────────────────────────────────────────────────────
   return (
@@ -279,22 +389,202 @@ export default function CaseDetail() {
                         </p>
                         <p className="text-xs text-gray-400 truncate mt-0.5">{doc.file_name}</p>
                       </div>
-                      <a
-                        href={getFileUrl(doc.id)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-800 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
-                        title="Descargar documento"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12M12 16.5V3" />
-                        </svg>
-                        Ver
-                      </a>
+                      <div className="shrink-0 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleView(doc)}
+                          disabled={docBusyId === doc.id}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-800 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                          title="Ver documento"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Ver
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(doc)}
+                          disabled={docBusyId === doc.id}
+                          className="inline-flex items-center text-xs font-semibold text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-lg transition-colors disabled:opacity-50"
+                          title="Descargar documento"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12M12 16.5V3" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Payments / abonos */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-1">
+                <p className="section-title mb-0">Pagos y abonos</p>
+              </div>
+
+              {/* Total del trámite (lo fija el admin) */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 mb-3">
+                {editingTotal ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-sm text-gray-500">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      autoFocus
+                      className="form-input flex-1"
+                      value={totalInput}
+                      onChange={(e) => setTotalInput(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveTotal}
+                      disabled={totalBusy}
+                      className="btn-secondary py-1.5 px-3 text-sm"
+                    >
+                      {totalBusy ? "..." : "Guardar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setEditingTotal(false); setTotalError(""); }}
+                      className="btn-ghost py-1.5 px-2 text-sm text-gray-400"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">Total del trámite</p>
+                      <p className="text-lg font-bold text-gray-800">
+                        {caseData.total_amount != null ? `$${Number(caseData.total_amount).toFixed(2)}` : "Sin definir"}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTotalInput(caseData.total_amount != null ? String(caseData.total_amount) : "");
+                        setEditingTotal(true);
+                      }}
+                      className="btn-ghost text-xs text-gray-500"
+                    >
+                      {caseData.total_amount != null ? "Editar" : "Definir total"}
+                    </button>
+                  </>
+                )}
+              </div>
+              {totalError && <p className="text-sm text-red-600 mb-3">{totalError}</p>}
+
+              {/* Progreso de pago */}
+              {caseData.total_amount != null && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                    <span>Pagado: ${paymentsTotal.toFixed(2)}</span>
+                    <span>Saldo: ${Math.max(0, Number(caseData.total_amount) - paymentsTotal).toFixed(2)}</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-brand-500 rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (paymentsTotal / Number(caseData.total_amount)) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {caseData.payments.length === 0 ? (
+                <div className="text-center py-6 text-gray-400 text-sm">Sin abonos registrados</div>
+              ) : (
+                <div className="space-y-2 mb-4">
+                  {caseData.payments.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-800">
+                          ${Number(p.amount).toFixed(2)}
+                          {p.method && <span className="text-gray-400 font-normal"> · {p.method}</span>}
+                        </p>
+                        {p.note && <p className="text-xs text-gray-400 truncate mt-0.5">{p.note}</p>}
+                        <p className="text-xs text-gray-300 mt-0.5">{new Date(p.created_at).toLocaleString()}</p>
+                      </div>
+                      {p.receipt_document_id ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleView({ id: p.receipt_document_id, file_name: `comprobante-${p.id}` })}
+                            className="shrink-0 text-xs font-semibold text-brand-600 hover:text-brand-800 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
+                          >
+                            Ver
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSendReceipt(p.id)}
+                            disabled={sendBusyId === p.id}
+                            className="shrink-0 text-xs font-semibold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {sendBusyId === p.id ? "Enviando..." : sendOkId === p.id ? "Enviado ✓" : "Enviar por correo"}
+                          </button>
+                        </>
+                      ) : (
+                        <span className="shrink-0 text-xs text-gray-300">Sin comprobante</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <form onSubmit={handleAddPayment} className="border-t border-gray-100 pt-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="form-label">Monto</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="form-input"
+                      placeholder="0.00"
+                      value={payForm.amount}
+                      onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Método</label>
+                    <input
+                      className="form-input"
+                      placeholder="efectivo, transferencia..."
+                      value={payForm.method}
+                      onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="form-label">Nota (opcional)</label>
+                  <input
+                    className="form-input"
+                    value={payForm.note}
+                    onChange={(e) => setPayForm((p) => ({ ...p, note: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Comprobante (opcional)</label>
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    className="form-input"
+                    onChange={(e) => setPayForm((p) => ({ ...p, receipt: e.target.files?.[0] || null }))}
+                  />
+                </div>
+                {payError && <p className="text-sm text-red-600">{payError}</p>}
+                <button type="submit" disabled={payBusy} className="btn-secondary w-full">
+                  {payBusy ? "Registrando..." : "Registrar abono"}
+                </button>
+              </form>
             </div>
 
             {/* Internal notes history */}
@@ -405,6 +695,33 @@ export default function CaseDetail() {
 
         </div>
       </main>
+
+      {/* Image lightbox */}
+      {preview && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setPreview(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white/80 hover:text-white p-2"
+            onClick={() => {
+              URL.revokeObjectURL(preview.url);
+              setPreview(null);
+            }}
+            aria-label="Cerrar"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={preview.url}
+            alt={preview.name}
+            className="max-w-full max-h-full rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
