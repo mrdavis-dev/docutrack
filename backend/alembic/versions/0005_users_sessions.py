@@ -4,15 +4,22 @@ Revision ID: 0005
 Revises: 0004
 Create Date: 2026-08-08
 """
+import os
 import bcrypt
 import sqlalchemy as sa
 from alembic import op
-from app.config import settings
 
 revision = "0005"
 down_revision = "0004"
 branch_labels = None
 depends_on = None
+
+# Seed credentials read directly from the environment (not app.config.Settings — those
+# ADMIN_USERNAME/ADMIN_PASSWORD fields were removed once auth moved to the users table).
+# This only runs once, at upgrade time, to create the first account; every account after
+# that is created via POST /users, stored in the DB like any other user.
+SEED_USERNAME = os.environ.get("SEED_ADMIN_USERNAME", "admin")
+SEED_PASSWORD = os.environ.get("SEED_ADMIN_PASSWORD", "admin123")
 
 
 def upgrade():
@@ -34,14 +41,15 @@ def upgrade():
         sa.Column("revoked_at", sa.DateTime(), nullable=True),
     )
 
-    # Seed one admin from the existing ADMIN_USERNAME/ADMIN_PASSWORD env vars so upgrading
-    # doesn't lock everyone out — old Basic Auth credentials become the first real account.
+    # First account so upgrading doesn't lock everyone out. Override via
+    # SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD env vars before running this migration
+    # on a fresh database; change the password immediately after first login otherwise.
     conn = op.get_bind()
-    hashed = bcrypt.hashpw(settings.ADMIN_PASSWORD.encode(), bcrypt.gensalt()).decode()
+    hashed = bcrypt.hashpw(SEED_PASSWORD.encode(), bcrypt.gensalt()).decode()
     conn.execute(
         sa.text("INSERT INTO users (username, password_hash, is_active, created_at) "
                 "VALUES (:u, :p, true, now())"),
-        {"u": settings.ADMIN_USERNAME, "p": hashed},
+        {"u": SEED_USERNAME, "p": hashed},
     )
 
 

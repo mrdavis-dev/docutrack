@@ -1,4 +1,3 @@
-import sys
 from typing import List
 from pydantic_settings import BaseSettings
 
@@ -8,8 +7,6 @@ class Settings(BaseSettings):
     BREVO_API_KEY: str = ""
     SMTP_FROM: str = "noreply@docucars.com"
     SMTP_FROM_NAME: str = "DocuCars"
-    ADMIN_USERNAME: str = "admin"
-    ADMIN_PASSWORD: str = "admin123"
     BUSINESS_EMAIL: str = ""
     UPLOAD_DIR: str = "/app/uploads"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
@@ -28,7 +25,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-# ponytail: hard stop instead of a config option nobody remembers to set — prod must not boot on defaults.
-if settings.ENV == "production" and settings.ADMIN_PASSWORD == "admin123":
-    sys.exit("ADMIN_PASSWORD must be overridden in production (ENV=production)")

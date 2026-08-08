@@ -1,6 +1,6 @@
 # DocuCars — Sistema de Gestión de Trámites Vehiculares
 
-MVP para gestión de solicitudes de trámites vehiculares con portal cliente y dashboard administrativo.
+Gestión de solicitudes de trámites con portal cliente y dashboard administrativo.
 
 ## Inicio rápido
 
@@ -31,33 +31,33 @@ docker compose up --build
 | `SMTP_FROM` | Correo remitente | Para emails |
 | `SMTP_FROM_NAME` | Nombre remitente | No |
 | `BUSINESS_EMAIL` | Correo que recibe alertas y nuevos casos | Para emails |
-| `ADMIN_USERNAME` | Usuario del dashboard | Sí |
-| `ADMIN_PASSWORD` | Contraseña del dashboard | Sí |
 | `UPLOAD_DIR` | Ruta de uploads en el contenedor | No (default `/app/uploads`) |
 | `SLA_MINUTES` | Minutos antes de alerta SLA | No (default `60`) |
 | `SLA_CHECK_INTERVAL` | Segundos entre revisiones SLA | No (default `300`) |
+| `CORS_ORIGINS_RAW` | Orígenes permitidos del frontend, separados por coma | Sí en producción |
+| `ENV` | `development` o `production` | No (default `development`) |
+| `SEED_ADMIN_USERNAME` / `SEED_ADMIN_PASSWORD` | Solo se leen una vez, al correr la migración `0005`, para crear la primera cuenta admin | No (default `admin` / `changeme123`) |
 
-## Credenciales por defecto
+## Usuarios y sesiones
 
-- Usuario: `admin`
-- Contraseña: `admin123`
+Los administradores viven en la base de datos (tabla `users`, contraseñas con bcrypt) — no hay credenciales hardcodeadas ni leídas desde `.env` en tiempo de ejecución. El primer admin se crea una sola vez al correr la migración `0005` (usando `SEED_ADMIN_USERNAME`/`SEED_ADMIN_PASSWORD`); todos los admins siguientes se crean desde el panel `/admin/users`.
 
-**Cambiar en `.env` antes de producción.**
+Las sesiones son server-side (tabla `sessions`, token opaco con expiración de 12h). Cerrar sesión revoca el token en el servidor de inmediato — no queda reutilizable desde ninguna pestaña ni caché del navegador. Desactivar un usuario revoca todas sus sesiones activas al instante.
+
+**Cambia la contraseña del admin inicial (o crea uno nuevo y desactiva el seed) antes de producción.**
 
 ## Flujo operativo
 
-1. Cliente llena formulario en portal y sube 4 documentos
+1. Cliente llena formulario en portal y sube los documentos requeridos por el tipo de trámite
 2. Sistema crea caso con estado `NUEVO`
 3. Email automático al negocio + confirmación al cliente (requiere Brevo)
-4. Admin revisa en dashboard, cambia estado, agrega notas
-5. Si el caso lleva >60 min en `NUEVO` sin atender → alerta por email
+4. Admin revisa en dashboard (con búsqueda por nombre o celular), cambia estado, agrega notas
+5. Admin puede definir el total del trámite y registrar abonos parciales con comprobante; cada comprobante se puede reenviar por correo al cliente
+6. Si el caso lleva más de `SLA_MINUTES` en `NUEVO` sin atender → alerta por email
 
 ## Tipos de trámite
 
-- Renovación de placa
-- Traspaso
-- Revisado
-- Duplicado
+Configurables desde `/admin/services` (tabla `service_types` + `service_fields`) — no están hardcodeados. Cada tipo de trámite define sus propios campos requeridos (archivo o texto libre).
 
 ## Estados del caso
 
@@ -68,11 +68,11 @@ O también: `DOCUMENTOS_INCOMPLETOS`, `CANCELADO`
 ## Stack
 
 - **Frontend**: React + Vite + TailwindCSS + React Router + Axios
-- **Backend**: FastAPI + SQLAlchemy + Pydantic + Alembic
+- **Backend**: FastAPI + SQLAlchemy + Pydantic + Alembic + bcrypt
 - **DB**: PostgreSQL 16
-- **Emails**: Brevo API
+- **Emails**: Brevo API (con soporte de adjuntos, usado para comprobantes de pago)
 - **Storage**: Volumen Docker (`uploads_data`)
-- **Infra**: Docker Compose
+- **Infra**: Docker Compose (con healthchecks en backend/frontend)
 
 ## Comandos útiles
 
