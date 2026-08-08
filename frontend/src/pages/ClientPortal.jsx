@@ -348,11 +348,6 @@ export default function ClientPortal() {
             </form>
           )}
         </div>
-
-        <p className="text-center text-xs text-gray-400 mt-6">
-          ¿Acceso administrativo?{" "}
-          <a href="/admin" className="text-brand-600 hover:underline font-medium">Ir al dashboard →</a>
-        </p>
       </div>
     </div>
   );
