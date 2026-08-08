@@ -5,7 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.models.case import Case, Document  # noqa: F401 — ensure models registered
 from app.models.service import ServiceType, ServiceField  # noqa: F401
-from app.routers import cases, files, payments
+from app.models.user import User, Session  # noqa: F401
+from app.routers import cases, files, payments, auth
 from app.routers import services
 from app.tasks.sla import check_sla
 from app.config import settings
@@ -45,6 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(cases.router)
 app.include_router(files.router)
 app.include_router(services.router)

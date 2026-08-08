@@ -4,31 +4,49 @@ const BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const api = axios.create({ baseURL: BASE_URL });
 
-const SESSION_KEY = "dc_admin_auth";
+const TOKEN_KEY = "dc_admin_token";
 
-// Restore auth from sessionStorage on module load
-const _saved = sessionStorage.getItem(SESSION_KEY);
-if (_saved) {
+function applyToken(token) {
+  if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
+  else delete api.defaults.headers.common.Authorization;
+}
+
+applyToken(sessionStorage.getItem(TOKEN_KEY));
+
+export async function login(username, password) {
+  const { data } = await api.post("/auth/login", { username, password });
+  sessionStorage.setItem(TOKEN_KEY, data.token);
+  applyToken(data.token);
+  return data;
+}
+
+export async function logout() {
   try {
-    api.defaults.auth = JSON.parse(_saved);
+    await api.post("/auth/logout");
   } catch {
-    sessionStorage.removeItem(SESSION_KEY);
+    /* token already invalid server-side — fine, we're clearing it anyway */
   }
-}
-
-export function setAdminAuth(username, password) {
-  api.defaults.auth = { username, password };
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username, password }));
-}
-
-export function clearAdminAuth() {
-  delete api.defaults.auth;
-  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  applyToken(null);
 }
 
 export function isAdminAuthed() {
-  return !!api.defaults.auth;
+  return !!sessionStorage.getItem(TOKEN_KEY);
 }
+
+// Server is the real source of truth for session validity: any 401 (revoked/expired
+// session — including a token replayed from a bfcache-restored page after logout) clears
+// the local token immediately, so isAdminAuthed() reflects reality on the very next check.
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 401) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      applyToken(null);
+    }
+    return Promise.reject(err);
+  }
+);
 
 // Cases
 export const createCase = (data) => api.post("/cases", data);
@@ -41,8 +59,8 @@ export const updateCaseTotal = (id, total_amount) => api.patch(`/cases/${id}/tot
 export const uploadFiles = (formData) =>
   api.post("/upload", formData, { headers: { "Content-Type": "multipart/form-data" } });
 export const getFileUrl = (documentId) => `${BASE_URL}/files/${documentId}`;
-// Auth is HTTP Basic — a plain <a href> triggers a fresh browser login prompt.
-// Fetch through axios (which carries api.defaults.auth) and hand back a blob: URL instead.
+// A plain <a href> wouldn't carry the Authorization header. Fetch through axios
+// (which does) and hand back a blob: URL instead.
 export const fetchFileBlob = (documentId) =>
   api.get(`/files/${documentId}`, { responseType: "blob" });
 
@@ -64,3 +82,8 @@ export const listServiceFields = (stId) => api.get(`/service-types/${stId}/field
 export const createServiceField = (stId, data) => api.post(`/service-types/${stId}/fields`, data);
 export const updateServiceField = (fieldId, data) => api.patch(`/service-fields/${fieldId}`, data);
 export const deleteServiceField = (fieldId) => api.delete(`/service-fields/${fieldId}`);
+
+// Admin users
+export const listUsers = () => api.get("/users");
+export const createUser = (data) => api.post("/users", data);
+export const deactivateUser = (userId) => api.patch(`/users/${userId}/deactivate`);

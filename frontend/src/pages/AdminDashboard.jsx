@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { listCases, setAdminAuth, clearAdminAuth, isAdminAuthed } from "../services/api";
+import { listCases, login, logout, isAdminAuthed } from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 import TimeElapsed from "../components/TimeElapsed";
 
@@ -64,16 +64,22 @@ export default function AdminDashboard() {
     return () => clearTimeout(t);
   }, [authed, loadCases, search]);
 
+  // Re-check auth when this page is restored from bfcache (e.g. Back after logging out
+  // elsewhere) — a mount-only useState wouldn't see a logout that happened after freeze.
+  useEffect(() => {
+    const recheck = () => setAuthed(isAdminAuthed());
+    window.addEventListener("pageshow", recheck);
+    return () => window.removeEventListener("pageshow", recheck);
+  }, []);
+
   async function handleLogin(e) {
     e.preventDefault();
     setLoginLoading(true);
     setLoginError("");
-    setAdminAuth(loginForm.username, loginForm.password);
     try {
-      await listCases({});
+      await login(loginForm.username, loginForm.password);
       setAuthed(true);
     } catch (err) {
-      clearAdminAuth();
       setLoginError(
         err?.response?.status === 401
           ? "Usuario o contraseña incorrectos"
@@ -84,11 +90,11 @@ export default function AdminDashboard() {
     }
   }
 
-  function handleLogout() {
-    clearAdminAuth();
-    setAuthed(false);
-    setCases([]);
-    setLoginForm({ username: "", password: "" });
+  async function handleLogout() {
+    await logout(); // revokes the session server-side — the real fix for reuse-after-logout
+    // Full reload (not just React state) so back/forward can't restore an in-memory
+    // instance from bfcache; belt-and-suspenders on top of the server-side revoke.
+    window.location.href = "/admin";
   }
 
   // ── LOGIN ──────────────────────────────────────────────────────────────────
@@ -211,6 +217,12 @@ export default function AdminDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
               </svg>
               <span className="hidden sm:inline">Trámites</span>
+            </Link>
+            <Link to="/admin/users" className="btn-ghost" title="Usuarios administradores">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              <span className="hidden sm:inline">Usuarios</span>
             </Link>
             <a href="/" className="btn-ghost" title="Ir al portal cliente">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
