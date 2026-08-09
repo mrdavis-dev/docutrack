@@ -6,7 +6,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.models.case import Case, Document  # noqa: F401 — ensure models registered
 from app.models.service import ServiceType, ServiceField  # noqa: F401
 from app.models.user import User, Session  # noqa: F401
-from app.routers import cases, files, payments, auth
+from app.models.settings import AppSettings  # noqa: F401
+from app.routers import cases, files, payments, auth, settings as settings_router
 from app.routers import services
 from app.tasks.sla import check_sla
 from app.config import settings
@@ -32,7 +33,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="DocuCars API",
+    title="Docutrack API",
     description="Sistema de gestión de trámites vehiculares",
     version="1.0.0",
     lifespan=lifespan,
@@ -51,6 +52,7 @@ app.include_router(cases.router)
 app.include_router(files.router)
 app.include_router(services.router)
 app.include_router(payments.router)
+app.include_router(settings_router.router)
 
 
 @app.get("/health")

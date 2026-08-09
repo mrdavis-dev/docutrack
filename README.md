@@ -1,4 +1,4 @@
-# DocuCars — Sistema de Gestión de Trámites Vehiculares
+# Docutrack — Sistema de Gestión de Trámites Vehiculares
 
 Gestión de solicitudes de trámites con portal cliente y dashboard administrativo.
 
@@ -6,7 +6,7 @@ Gestión de solicitudes de trámites con portal cliente y dashboard administrati
 
 ```bash
 # Clonar / posicionarse en el directorio
-cd docucars
+cd docutrack
 
 # Configurar variables de entorno
 cp backend/.env.example backend/.env

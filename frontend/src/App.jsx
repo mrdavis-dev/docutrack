@@ -5,7 +5,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CaseDetail from "./pages/CaseDetail";
 import ServiceTypeManager from "./pages/ServiceTypeManager";
 import UserManager from "./pages/UserManager";
+import BrandingManager from "./pages/BrandingManager";
 import { isAdminAuthed } from "./services/api";
+import { BrandingProvider } from "./services/BrandingContext";
 
 // ponytail: guard is just "do we have saved credentials in memory" — the backend's 401 on
 // every request is still the real gate. The re-check on "pageshow" matters: after logout,
@@ -26,15 +28,18 @@ function RequireAdmin({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ClientPortal />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/cases/:id" element={<RequireAdmin><CaseDetail /></RequireAdmin>} />
-        <Route path="/admin/services" element={<RequireAdmin><ServiceTypeManager /></RequireAdmin>} />
-        <Route path="/admin/users" element={<RequireAdmin><UserManager /></RequireAdmin>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <BrandingProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<ClientPortal />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/cases/:id" element={<RequireAdmin><CaseDetail /></RequireAdmin>} />
+          <Route path="/admin/services" element={<RequireAdmin><ServiceTypeManager /></RequireAdmin>} />
+          <Route path="/admin/users" element={<RequireAdmin><UserManager /></RequireAdmin>} />
+          <Route path="/admin/branding" element={<RequireAdmin><BrandingManager /></RequireAdmin>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </BrandingProvider>
   );
 }

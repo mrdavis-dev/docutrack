@@ -87,3 +87,15 @@ export const deleteServiceField = (fieldId) => api.delete(`/service-fields/${fie
 export const listUsers = () => api.get("/users");
 export const createUser = (data) => api.post("/users", data);
 export const deactivateUser = (userId) => api.patch(`/users/${userId}/deactivate`);
+
+// Branding (public read, admin write)
+export const getSettings = () => api.get("/settings");
+export const updateBrandColor = (brand_color) => api.put("/settings/color", { brand_color });
+export const updateLogo = (file) => {
+  const fd = new FormData();
+  fd.append("logo", file);
+  return api.put("/settings/logo", fd, { headers: { "Content-Type": "multipart/form-data" } });
+};
+export const getLogoUrl = () => `${BASE_URL}/settings/logo`;
+export const updateTitle = (portal_title, portal_subtitle) =>
+  api.put("/settings/title", { portal_title, portal_subtitle });
