@@ -374,7 +374,11 @@ export default function AdminDashboard() {
                         <StatusBadge status={c.status} alertSent={c.alert_sent} />
                       </td>
                       <td className="px-4 py-4">
-                        <TimeElapsed createdAt={c.created_at} compact />
+                        {["FINALIZADO", "CANCELADO"].includes(c.status) ? (
+                          <span className="text-gray-300">—</span>
+                        ) : (
+                          <TimeElapsed createdAt={c.created_at} compact />
+                        )}
                       </td>
                       <td className="px-4 py-4 pr-5">
                         <span className="inline-flex items-center gap-1 text-xs text-gray-400">
