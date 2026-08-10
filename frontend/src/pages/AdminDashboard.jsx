@@ -43,6 +43,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const loadCases = useCallback(async () => {
     setLoading(true);
@@ -195,7 +197,8 @@ export default function AdminDashboard() {
             <span className="text-gray-400 text-sm hidden sm:inline">Dashboard</span>
           </div>
 
-          <div className="flex items-center gap-1">
+          {/* Desktop/tablet nav */}
+          <div className="hidden sm:flex items-center gap-1">
             <button
               onClick={loadCases}
               disabled={loading}
@@ -242,7 +245,68 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">Salir</span>
             </button>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="sm:hidden btn-ghost"
+            aria-label="Abrir menú"
+            aria-expanded={menuOpen}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {menuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <div className="sm:hidden max-w-7xl mx-auto mt-3 pb-1 border-t border-gray-100 pt-3 flex flex-col gap-1">
+            <button onClick={() => { loadCases(); setMenuOpen(false); }} disabled={loading} className="btn-ghost justify-start w-full">
+              <svg className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Actualizar
+            </button>
+            <Link to="/admin/services" onClick={() => setMenuOpen(false)} className="btn-ghost justify-start w-full">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+              </svg>
+              Trámites
+            </Link>
+            <Link to="/admin/users" onClick={() => setMenuOpen(false)} className="btn-ghost justify-start w-full">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              Usuarios
+            </Link>
+            <Link to="/admin/branding" onClick={() => setMenuOpen(false)} className="btn-ghost justify-start w-full">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+              </svg>
+              Marca
+            </Link>
+            <a href="/" className="btn-ghost justify-start w-full">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+              Portal
+            </a>
+            <button
+              onClick={handleLogout}
+              className="btn-ghost justify-start w-full text-red-500 hover:bg-red-50 hover:text-red-600"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+              Salir
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
@@ -257,25 +321,38 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Search by name or phone */}
-          <div className="relative max-w-sm">
-            <svg className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              className="form-input pl-9"
-              placeholder="Buscar por nombre o celular..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          {/* Search + mobile filter toggle */}
+          <div className="flex items-center gap-2">
+            <div className="relative max-w-sm flex-1">
+              <svg className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input
+                className="form-input pl-9"
+                placeholder="Buscar por nombre o celular..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={() => setFiltersOpen((v) => !v)}
+              className="sm:hidden btn-ghost shrink-0"
+              aria-expanded={filtersOpen}
+              aria-label="Filtrar por estado"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+              </svg>
+              {activeFilter?.value && <span className="w-1.5 h-1.5 rounded-full bg-brand-600" />}
+            </button>
           </div>
 
-          {/* Status pill filters */}
-          <div className="flex gap-2 flex-wrap">
+          {/* Status pill filters — always visible on tablet/desktop, collapsible on mobile */}
+          <div className={`gap-2 flex-wrap ${filtersOpen ? "flex" : "hidden"} sm:flex`}>
             {STATUSES.map((s) => (
               <button
                 key={s.value}
-                onClick={() => setStatusFilter(s.value)}
+                onClick={() => { setStatusFilter(s.value); setFiltersOpen(false); }}
                 className={`text-xs px-3.5 py-1.5 rounded-full border font-semibold transition-all duration-150 ${
                   statusFilter === s.value
                     ? "bg-brand-600 text-white border-brand-600 shadow-sm"
@@ -291,22 +368,29 @@ export default function AdminDashboard() {
         {/* Table card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
           {loading ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/70">
-                    {COLS.map((h) => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}
-                </tbody>
-              </table>
-            </div>
+            <>
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50/70">
+                      {COLS.map((h) => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}
+                  </tbody>
+                </table>
+              </div>
+              <div className="sm:hidden p-4 space-y-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            </>
           ) : cases.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center px-4">
               <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
@@ -330,69 +414,119 @@ export default function AdminDashboard() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/70">
-                    {COLS.map((h) => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider first:pl-5 last:pr-5">
-                        {h}
-                      </th>
+            <>
+              {/* Desktop/tablet table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50/70">
+                      {COLS.map((h) => (
+                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider first:pl-5 last:pr-5">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {cases.map((c) => (
+                      <tr
+                        key={c.id}
+                        onClick={() => navigate(`/admin/cases/${c.id}`)}
+                        className="hover:bg-brand-50/40 transition-colors cursor-pointer"
+                      >
+                        <td className="px-4 py-4 pl-5">
+                          <span className="font-mono text-xs font-semibold text-gray-400">#{c.id}</span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className="text-xs text-gray-500">
+                            {new Date(c.created_at).toLocaleDateString("es", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <p className="font-semibold text-gray-900 leading-tight text-sm">{c.customer_name}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{c.phone}</p>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="font-mono text-sm font-bold text-gray-800 tracking-widest">{c.plate}</span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="text-xs text-gray-500">{SERVICE_LABELS[c.service_type] || c.service_type}</span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <StatusBadge status={c.status} alertSent={c.alert_sent} />
+                        </td>
+                        <td className="px-4 py-4">
+                          {["FINALIZADO", "CANCELADO"].includes(c.status) ? (
+                            <span className="text-gray-300">—</span>
+                          ) : (
+                            <TimeElapsed createdAt={c.created_at} compact />
+                          )}
+                        </td>
+                        <td className="px-4 py-4 pr-5">
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12" />
+                            </svg>
+                            {c.document_count}
+                          </span>
+                        </td>
+                      </tr>
                     ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {cases.map((c) => (
-                    <tr
-                      key={c.id}
-                      onClick={() => navigate(`/admin/cases/${c.id}`)}
-                      className="hover:bg-brand-50/40 transition-colors cursor-pointer"
-                    >
-                      <td className="px-4 py-4 pl-5">
-                        <span className="font-mono text-xs font-semibold text-gray-400">#{c.id}</span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-xs text-gray-500">
-                          {new Date(c.created_at).toLocaleDateString("es", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <p className="font-semibold text-gray-900 leading-tight text-sm">{c.customer_name}</p>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile card list */}
+              <div className="sm:hidden divide-y divide-gray-50">
+                {cases.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => navigate(`/admin/cases/${c.id}`)}
+                    className="active:bg-brand-50/40 transition-colors cursor-pointer p-4"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 leading-tight text-sm truncate">{c.customer_name}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{c.phone}</p>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="font-mono text-sm font-bold text-gray-800 tracking-widest">{c.plate}</span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="text-xs text-gray-500">{SERVICE_LABELS[c.service_type] || c.service_type}</span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <StatusBadge status={c.status} alertSent={c.alert_sent} />
-                      </td>
-                      <td className="px-4 py-4">
+                      </div>
+                      <StatusBadge status={c.status} alertSent={c.alert_sent} />
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 text-xs">
+                      <span className="font-mono font-bold text-gray-800 tracking-widest">{c.plate}</span>
+                      <span className="text-gray-500">{SERVICE_LABELS[c.service_type] || c.service_type}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
+                      <span>
+                        #{c.id} · {new Date(c.created_at).toLocaleDateString("es", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="flex items-center gap-3">
                         {["FINALIZADO", "CANCELADO"].includes(c.status) ? (
                           <span className="text-gray-300">—</span>
                         ) : (
                           <TimeElapsed createdAt={c.created_at} compact />
                         )}
-                      </td>
-                      <td className="px-4 py-4 pr-5">
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                        <span className="inline-flex items-center gap-1">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12" />
                           </svg>
                           {c.document_count}
                         </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
