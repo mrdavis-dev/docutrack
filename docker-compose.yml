@@ -28,9 +28,9 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8001:8001"
+      - "8001:8000"   # host:container — change only the left side if 8000 is taken on the host
     command: >
-      sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1"
+      sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
